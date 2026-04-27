@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบทดสอบแม่บ้าน · ร้านสะดวกซัก</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1a1a; --paper:#fafaf7; --soap:#e8f0f5;
+  --bubble:#a8d5e2; --foam:#f5f9fb;
+  --warm:#d97757; --gold:#d4a574; --sage:#7a9e7e;
+  --wrong:#c9533f; --right:#5a8765; --neutral:#6b7280;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-weight:400;line-height:1.6}
+body{background:radial-gradient(circle at 10% 20%,rgba(168,213,226,.15) 0%,transparent 50%),radial-gradient(circle at 90% 80%,rgba(217,119,87,.08) 0%,transparent 50%),var(--paper)}
+
+.container{max-width:920px;margin:0 auto;padding:24px 20px}
+.btn{font-family:inherit;cursor:pointer;border:2px solid var(--ink);background:var(--ink);color:var(--paper);padding:14px 28px;font-size:16px;font-weight:600;border-radius:0;transition:all .2s}
+.btn:hover{background:var(--paper);color:var(--ink);transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+.btn-secondary{background:transparent;color:var(--ink)}
+.btn-secondary:hover{background:var(--ink);color:var(--paper);transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--warm)}
+.btn-warm{background:var(--warm);border-color:var(--warm);color:var(--paper)}
+.btn-warm:hover{background:var(--paper);color:var(--warm)}
+.btn-sage{background:var(--sage);border-color:var(--sage);color:var(--paper)}
+.btn-sm{padding:8px 14px;font-size:14px}
+input,select,textarea{font-family:inherit;font-size:16px;border:2px solid var(--ink);padding:12px 14px;background:var(--paper);width:100%;border-radius:0;transition:all .15s}
+input:focus,select:focus{outline:none;background:var(--foam);box-shadow:4px 4px 0 var(--ink);transform:translate(-2px,-2px)}
+.label{font-weight:600;display:block;margin-bottom:8px;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--neutral)}
+
+/* HOME */
+.home-hero{padding:60px 0 40px;text-align:center;border-bottom:3px solid var(--ink);position:relative}
+.home-hero::after{content:'';position:absolute;bottom:-9px;left:0;right:0;height:3px;background:var(--ink)}
+.home-hero h1{font-size:clamp(32px,6vw,52px);font-weight:700;line-height:1.1;letter-spacing:-.02em;margin-bottom:12px}
+.home-hero h1 .accent{color:var(--warm);font-style:italic}
+.home-hero p{font-size:18px;color:var(--neutral);max-width:540px;margin:0 auto}
+.home-hero .ornament{font-size:48px;margin-bottom:20px;display:inline-block;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+
+.home-cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+@media(max-width:680px){.home-cards{grid-template-columns:1fr}}
+.card{border:3px solid var(--ink);background:var(--paper);padding:36px 28px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.card:hover{transform:translate(-4px,-4px);box-shadow:8px 8px 0 var(--ink)}
+.card.warm:hover{box-shadow:8px 8px 0 var(--warm)}
+.card.sage:hover{box-shadow:8px 8px 0 var(--sage)}
+.card .num{font-size:14px;font-weight:600;color:var(--neutral);letter-spacing:.15em}
+.card h2{font-size:28px;font-weight:700;margin:8px 0 16px;letter-spacing:-.01em}
+.card p{font-size:15px;color:var(--neutral);line-height:1.5}
+.card .arrow{position:absolute;top:24px;right:24px;font-size:28px;transition:transform .2s}
+.card:hover .arrow{transform:translateX(6px)}
+
+.stats-strip{display:flex;justify-content:space-around;align-items:center;padding:32px 0;margin-top:48px;border-top:2px dashed var(--ink);border-bottom:2px dashed var(--ink);flex-wrap:wrap;gap:16px}
+.stat-item{text-align:center}
+.stat-num{font-size:36px;font-weight:700;color:var(--warm);line-height:1}
+.stat-label{font-size:13px;color:var(--neutral);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+
+/* EXAM */
+.exam-header{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:2px solid var(--ink);margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.exam-header .info{font-weight:600;font-size:15px}
+.exam-header .info span{color:var(--warm)}
+.timer{font-weight:600;font-size:18px;background:var(--ink);color:var(--paper);padding:6px 14px}
+
+.progress-track{height:8px;background:var(--soap);border:2px solid var(--ink);margin-bottom:24px;overflow:hidden}
+.progress-fill{height:100%;background:repeating-linear-gradient(45deg,var(--warm),var(--warm) 8px,#e08566 8px,#e08566 16px);transition:width .4s ease}
+
+.q-card{border:3px solid var(--ink);background:var(--paper);padding:32px;margin-bottom:20px;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.q-meta{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;letter-spacing:.05em;text-transform:uppercase;border:2px solid var(--ink)}
+.tag-easy{background:#d4eed5;color:#2d5a30}
+.tag-med{background:#fce5b5;color:#7a5a1e}
+.tag-hard{background:#f8c8bf;color:#7a2d1e}
+.tag-cat{background:var(--soap);color:var(--ink)}
+.q-text{font-size:20px;font-weight:500;line-height:1.5;margin-bottom:24px}
+.q-num{color:var(--warm);font-weight:700}
+
+.choices{display:grid;gap:12px}
+.choice{border:2px solid var(--ink);padding:16px 20px;cursor:pointer;background:var(--paper);transition:all .15s;display:flex;gap:14px;align-items:flex-start;font-size:16px;line-height:1.4;text-align:left;font-family:inherit;width:100%}
+.choice:hover{background:var(--foam);transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+.choice.selected{background:var(--ink);color:var(--paper)}
+.choice.selected .ck{background:var(--paper);color:var(--ink)}
+.ck{flex-shrink:0;width:32px;height:32px;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;background:var(--paper);color:var(--ink)}
+
+.exam-nav{display:flex;justify-content:space-between;gap:12px;margin-top:24px;flex-wrap:wrap}
+.exam-nav .left{display:flex;gap:12px;flex-wrap:wrap}
+
+/* RESULT */
+.result-card{border:4px solid var(--ink);padding:48px 32px;text-align:center;background:var(--paper);margin-top:24px;position:relative}
+.result-card::before{content:'';position:absolute;inset:8px;border:1px solid var(--ink);pointer-events:none}
+.score-display{font-size:96px;font-weight:700;line-height:1;color:var(--ink);margin-bottom:8px;letter-spacing:-.04em}
+.score-display .of{font-size:32px;color:var(--neutral);font-weight:400}
+.score-percent{font-size:24px;font-weight:600;color:var(--warm);margin-bottom:24px}
+.grade-badge{display:inline-block;padding:8px 20px;border:3px solid var(--ink);font-weight:700;font-size:18px;margin-bottom:16px;letter-spacing:.05em}
+.grade-A{background:var(--sage);color:#fff}
+.grade-B{background:var(--bubble);color:var(--ink)}
+.grade-C{background:var(--gold);color:var(--ink)}
+.grade-D{background:var(--warm);color:#fff}
+.grade-F{background:var(--wrong);color:#fff}
+.result-msg{font-size:17px;color:var(--neutral);max-width:500px;margin:0 auto 24px;line-height:1.6}
+.cat-breakdown{margin-top:32px;text-align:left}
+.cat-breakdown h3{margin-bottom:12px;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:var(--neutral);border-bottom:2px solid var(--ink);padding-bottom:6px}
+.cat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--ink)}
+.cat-row:last-child{border-bottom:none}
+.cat-row .name{font-weight:600}
+.cat-row .score{font-family:monospace;font-weight:600}
+
+/* OWNER */
+.owner-shell{background:var(--paper);min-height:100vh}
+.owner-header{background:var(--ink);color:var(--paper);padding:24px 0;border-bottom:4px solid var(--warm)}
+.owner-header h1{font-size:24px;font-weight:700}
+.owner-header .sub{font-size:13px;color:var(--bubble);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.owner-tabs{display:flex;gap:0;border-bottom:2px solid var(--ink);margin-bottom:24px;overflow-x:auto}
+.owner-tab{padding:14px 24px;border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;border-bottom:4px solid transparent;color:var(--neutral);white-space:nowrap}
+.owner-tab.active{color:var(--ink);border-bottom-color:var(--warm)}
+.owner-tab:hover{color:var(--ink)}
+
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.metric{border:2px solid var(--ink);padding:20px;background:var(--paper)}
+.metric .lbl{font-size:12px;color:var(--neutral);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.metric .val{font-size:32px;font-weight:700;line-height:1}
+.metric .sub{font-size:13px;color:var(--neutral);margin-top:4px}
+
+.history-list{display:grid;gap:12px}
+.history-item{border:2px solid var(--ink);padding:16px 20px;display:grid;grid-template-columns:1fr auto auto auto;gap:16px;align-items:center;background:var(--paper)}
+@media(max-width:680px){.history-item{grid-template-columns:1fr 1fr}}
+.history-item .name{font-weight:600;font-size:16px}
+.history-item .date{font-size:13px;color:var(--neutral)}
+.history-item .score{font-family:monospace;font-weight:700;font-size:18px}
+.history-item .grade{font-size:13px;font-weight:600;padding:4px 10px;border:2px solid var(--ink)}
+.history-item button{padding:8px 14px;font-size:14px;background:transparent;border:2px solid var(--ink);color:var(--ink);font-family:inherit;cursor:pointer;font-weight:600}
+.history-item button:hover{background:var(--ink);color:var(--paper)}
+
+.detail-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:24px;z-index:1000;overflow-y:auto}
+.detail-modal .box{background:var(--paper);max-width:900px;width:100%;border:4px solid var(--ink);padding:32px;margin-top:24px}
+.detail-q{border:2px solid var(--ink);padding:20px;margin-bottom:16px}
+.detail-q.correct{background:#e9f3ea;border-color:var(--right)}
+.detail-q.wrong{background:#fbe7e3;border-color:var(--wrong)}
+.detail-q .head{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.detail-q .text{font-weight:500;font-size:16px;margin-bottom:12px}
+.detail-q .ch{font-size:14px;padding:8px 12px;margin:4px 0;border:1px solid #ccc}
+.detail-q .ch.user-pick{border:2px solid var(--wrong);background:rgba(201,83,63,.1);font-weight:600}
+.detail-q .ch.correct-ans{border:2px solid var(--right);background:rgba(90,135,101,.15);font-weight:600}
+.detail-q .ch.user-correct{border:2px solid var(--right);background:rgba(90,135,101,.2);font-weight:600}
+.detail-q .explain{margin-top:12px;padding:12px;background:var(--soap);border-left:4px solid var(--warm);font-size:14px;line-height:1.5}
+
+.weak-list{display:grid;gap:10px}
+.weak-item{border:2px solid var(--ink);padding:14px 18px;background:var(--paper)}
+.weak-item summary{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;cursor:pointer;list-style:none}
+.weak-item summary::-webkit-details-marker{display:none}
+.weak-item .qid{font-family:monospace;font-weight:700;color:var(--warm);font-size:18px}
+.weak-item .qq{font-size:14px;line-height:1.4}
+.weak-item .ct{font-size:13px;font-weight:700;background:var(--wrong);color:#fff;padding:4px 10px;font-family:monospace}
+
+/* TREND CHART */
+.trend-card{border:2px solid var(--ink);padding:24px;background:var(--paper);margin-bottom:16px}
+.trend-card h3{font-size:18px;margin-bottom:16px}
+.trend-chart{height:140px;position:relative;border-bottom:2px solid var(--ink);border-left:2px solid var(--ink);padding:8px 0;display:flex;align-items:flex-end;gap:6px;overflow-x:auto}
+.trend-bar{flex:1;min-width:24px;background:var(--warm);position:relative;transition:all .2s;cursor:pointer}
+.trend-bar:hover{background:var(--ink)}
+.trend-bar.pass{background:var(--sage)}
+.trend-bar.pass:hover{background:var(--ink)}
+.trend-bar .lbl{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:11px;font-weight:600;padding:2px 4px;white-space:nowrap}
+.trend-axis{display:flex;justify-content:space-between;font-size:11px;color:var(--neutral);margin-top:4px}
+
+/* PASSWORD */
+.pw-modal{position:fixed;inset:0;background:var(--ink);display:flex;align-items:center;justify-content:center;padding:24px;z-index:2000}
+.pw-modal .box{max-width:420px;width:100%;background:var(--paper);padding:48px 36px;text-align:center;position:relative}
+.pw-modal .box::before{content:'';position:absolute;inset:8px;border:1px solid var(--ink);pointer-events:none}
+.pw-modal h2{font-size:24px;font-weight:700;margin-bottom:8px}
+.pw-modal p{color:var(--neutral);margin-bottom:24px;font-size:14px}
+.pw-modal input{margin-bottom:16px;text-align:center;font-size:18px;letter-spacing:.2em}
+.pw-error{color:var(--wrong);font-weight:600;font-size:14px;margin-top:8px;min-height:20px}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--neutral)}
+.empty-state .ico{font-size:48px;margin-bottom:12px}
+.empty-state p{font-size:16px}
+
+.flash{padding:14px 18px;margin:16px 0;border:2px solid var(--ink);font-size:14px;font-weight:500}
+.flash-warn{background:#fff7e0;border-color:var(--gold)}
+.flash-info{background:var(--foam);border-color:var(--bubble)}
+
+.review-toggle{cursor:pointer;font-weight:600;font-size:14px;text-decoration:underline;color:var(--neutral)}
+.hidden{display:none !important}
+.small{font-size:13px;color:var(--neutral)}
+.center{text-align:center}
+.mt{margin-top:16px}
+.mt-l{margin-top:32px}
+.row-gap{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+.bubbles{position:fixed;bottom:0;left:0;right:0;height:120px;pointer-events:none;z-index:0;overflow:hidden;opacity:.4}
+.bubble{position:absolute;border-radius:50%;background:var(--bubble);bottom:-50px;animation:rise 8s ease-in infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}10%{opacity:.6}90%{opacity:.4}100%{transform:translateY(-300px);opacity:0}}
+</style>
+</head>
+<body>
+<div class="bubbles" id="bubbles"></div>
+<div id="app"></div>
+
+<script id="qdata" type="application/json">[{"id":1,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"หลังลูกค้าใช้เครื่องซักเสร็จ สิ่งแรกที่ต้องทำกับเครื่องคืออะไร?","choices":["เปิดประตูเครื่องเพื่อระบายความชื้น","ฉีดน้ำหอมในถังซัก","ปิดประตูเครื่องทันทีเพื่อกันฝุ่น","ถอดปลั๊กเครื่องออก"],"answer":0,"explain":"คู่มือระบุให้เปิดประตูเครื่องทันทีหลังลูกค้าใช้เสร็จ เพื่อระบายความชื้น ป้องกันกลิ่นอับและเชื้อรา"},{"id":2,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ยางขอบประตูเครื่องซัก (door seal) ต้องเช็ดด้วยอะไร?","choices":["ฟองน้ำขัดหม้อ","ผ้าสะอาดชุบน้ำหมาด","กระดาษทิชชู่","ผ้าแห้งเท่านั้น"],"answer":1,"explain":"เช็ดยางขอบประตูด้วยผ้าสะอาดชุบน้ำหมาด เพราะตรงนี้คือจุดสะสมเส้นผม ขุยผ้า และน้ำขัง"},{"id":3,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"แผงควบคุมและปุ่มของเครื่องซัก ต้องเช็ดด้วยอะไร?","choices":["แอลกอฮอล์ฉีด","ผ้าเปียกชุ่ม","น้ำยาฟอกขาว","ผ้าแห้งเท่านั้น"],"answer":3,"explain":"เช็ดแผงควบคุมและปุ่มต่างๆ ด้วยผ้าแห้งเท่านั้น ห้ามใช้ผ้าเปียก เพราะอาจทำให้แผงวงจรเสีย"},{"id":4,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"Lint Filter (ตัวกรองขุยผ้า) ของเครื่องอบ เป็นสาเหตุอันดับ 1 ของอะไร?","choices":["กลิ่นอับในผ้า","ค่าไฟแพง","ไฟไหม้ในร้านสะดวกซัก","เครื่องเสียง่าย"],"answer":2,"explain":"คู่มือระบุชัดว่า Lint Filter เป็นสาเหตุอันดับ 1 ของไฟไหม้ในร้านสะดวกซัก ต้องทำความสะอาดทุกครั้งที่ลูกค้าใช้เสร็จ"},{"id":6,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"พื้นร้านควรกวาดและถูบ่อยแค่ไหน?","choices":["สัปดาห์ละ 2 ครั้ง","วันละครั้งช่วงเช้า","เฉพาะตอนปิดร้าน","ทุก 2-3 ชั่วโมง โดยเฉพาะช่วงลูกค้าเยอะ"],"answer":3,"explain":"กวาดและถูพื้นทุก 2-3 ชั่วโมง โดยเฉพาะช่วงที่ลูกค้าเยอะ"},{"id":7,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ทำไมต้องเช็ดพื้นให้แห้งทันที?","choices":["กันมดมาเดิน","กันลูกค้าลื่นล้ม","ทำให้พื้นเงา","ประหยัดน้ำ"],"answer":1,"explain":"เช็ดพื้นให้แห้งทันที เพราะพื้นเปียกอาจทำให้ลูกค้าลื่นล้ม"},{"id":8,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ถังขยะควรเปลี่ยนถุงเมื่อไหร่?","choices":["วันละครั้งช่วงเย็น","สัปดาห์ละ 2 ครั้ง","เมื่อเต็มล้นออกมาแล้ว","เต็ม 3 ใน 4 ของถัง"],"answer":3,"explain":"ตรวจดูทุกชั่วโมง ถ้าเต็ม 3 ใน 4 ของถังให้เปลี่ยนถุงทันที ห้ามให้ขยะล้น"},{"id":9,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ต้องตรวจถังขยะบ่อยแค่ไหน?","choices":["ทุกชั่วโมง","เฉพาะตอนปิดร้าน","วันละ 2 ครั้ง","ทุก 4 ชั่วโมง"],"answer":0,"explain":"ตรวจถังขยะทุกชั่วโมง ห้ามให้ขยะล้นออกมาเพราะดูสกปรกมาก"},{"id":11,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"โต๊ะพับผ้าและโต๊ะวางตะกร้าควรเช็ดบ่อยแค่ไหน?","choices":["ทุก 30 นาที","วันละครั้ง","สัปดาห์ละ 2 ครั้ง","ทุก 2 ชั่วโมง"],"answer":3,"explain":"เช็ดโต๊ะพับผ้าด้วยผ้าชุบน้ำสบู่อ่อนทุก 2 ชั่วโมง"},{"id":12,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"การล้างถังเครื่องซักทำบ่อยแค่ไหน?","choices":["ทุกวัน","สัปดาห์ละ 1-2 ครั้ง","ปีละ 2 ครั้ง","เดือนละครั้ง"],"answer":1,"explain":"รันโปรแกรมล้างถังของเครื่อง สัปดาห์ละ 1-2 ครั้ง โดยใช้น้ำร้อนและน้ำยาล้างเครื่อง"},{"id":13,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ตามคู่มือ 'หลักการสำคัญที่ต้องจำ' เรื่องความสะอาดคืออะไร?","choices":["รอให้ลูกค้าบอกก่อนค่อยทำ","ทำเฉพาะตอนเปิด-ปิดร้าน","ทำความสะอาดทันทีที่เห็น ไม่รอให้ลูกค้าเห็นว่าสกปรก","ทำความสะอาดวันละครั้งให้ครบ"],"answer":2,"explain":"หลักการสำคัญคือ ทำความสะอาดทันทีที่เห็น ไม่รอให้ลูกค้าเห็นว่าสกปรก เพราะลูกค้าเห็นแล้วเพียงครั้งเดียว ความประทับใจก็เสียไปได้ทันที"},{"id":14,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ทำความสะอาดเครื่องอบด้านในด้วยผ้าหมาด ต้องรอเงื่อนไขอะไร?","choices":["รอลูกค้าออกจากร้านก่อน","ปิดเครื่องอย่างน้อย 5 นาที","ใช้ถุงมือยางเสมอ","เครื่องเย็นแล้วเท่านั้น"],"answer":3,"explain":"เช็ดถังด้านในด้วยผ้าหมาด เฉพาะเมื่อเครื่องเย็นแล้วเท่านั้น"},{"id":15,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"การเช็ดยางขอบประตูเครื่องซักประจำสัปดาห์ ใช้น้ำยาอะไรกำจัดเชื้อราดำ?","choices":["น้ำยาฟอกขาว","น้ำเกลือ","แอลกอฮอล์ 70%","น้ำส้มสายชูเจือจาง"],"answer":3,"explain":"ขัดยางขอบประตูด้วยผ้าชุบน้ำส้มสายชูเจือจาง เพื่อกำจัดเชื้อราดำที่ฝังในยาง"},{"id":16,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ถังขยะควรล้างน้ำสบู่บ่อยแค่ไหน?","choices":["ทุกวัน","เมื่อเริ่มมีกลิ่น","เดือนละครั้ง","สัปดาห์ละ 1 ครั้ง"],"answer":3,"explain":"ล้างถังขยะด้วยน้ำสบู่สัปดาห์ละ 1 ครั้ง"},{"id":19,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"ช่องใส่ผงซักฟอก/น้ำยาปรับผ้านุ่ม ทำความสะอาดบ่อยแค่ไหน?","choices":["เดือนละครั้ง","ทุกวัน","เฉพาะเมื่ออุดตัน","สัปดาห์ละครั้ง"],"answer":1,"explain":"ทำความสะอาดช่องใส่น้ำยาซักฟอกและน้ำยาปรับผ้านุ่มประจำวัน โดยดึงออกมาล้างน้ำขจัดคราบจับแข็ง"},{"id":20,"category":"ทำความสะอาด","difficulty":"ง่าย","q":"กระจกประตูเครื่องซักต้องเช็ดให้เป็นอย่างไร?","choices":["ใส ไม่มีคราบน้ำหรือรอยนิ้วมือ","แค่ด้านนอกก็พอ","แค่ด้านในก็พอ","มันวาวเป็นพิเศษ"],"answer":0,"explain":"เช็ดกระจกประตูด้านในและด้านนอกให้ใส ไม่มีคราบน้ำหรือรอยนิ้วมือ"},{"id":21,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ลูกค้านำผ้าเปื้อนน้ำมันเครื่องมาจะอบ แม่บ้านควรทำอย่างไร?","choices":["ให้ลูกค้าซักก่อนแล้วค่อยอบ","อบให้แต่ใช้อุณหภูมิต่ำ","ให้อบแต่เฝ้าใกล้ๆ","ปฏิเสธและเตือนลูกค้าว่าผ้าเปื้อนน้ำมันอบไม่ได้ เสี่ยงไฟไหม้"],"answer":3,"explain":"ห้ามอบผ้าเปื้อนน้ำมันเด็ดขาด ต้องเตือนลูกค้าทุกครั้งที่เห็นผ้าลักษณะนี้ เพราะอาจติดไฟในเครื่องอบจากความร้อน"},{"id":22,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"การทำความสะอาดช่องระบายอากาศด้านหลังเครื่องอบใช้อะไร?","choices":["ผ้าเปียกชุ่ม","แปรงนุ่มหรือเครื่องดูดฝุ่น","น้ำยาฟอกขาวฉีดพ่น","ฉีดน้ำแรงๆ"],"answer":1,"explain":"ใช้แปรงนุ่มหรือเครื่องดูดฝุ่นทำความสะอาดช่องระบายอากาศด้านหลังเครื่องอบ ทำประจำสัปดาห์"},{"id":23,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"การตรวจอุณหภูมิการอบของเครื่องอบ ทำได้อย่างไรเบื้องต้น?","choices":["เปิดประตูดูตอนอบ","ใช้มือจับกระจกตอนอบ","ใช้เทอร์โมมิเตอร์วัดในถัง","ฟังเสียงเครื่อง"],"answer":1,"explain":"ตรวจอุณหภูมิการอบว่าทำงานปกติ ไม่ร้อนเกินไป โดยใช้มือจับกระจกตอนอบ (ทำประจำสัปดาห์)"},{"id":24,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ข้อใด 'ไม่ใช่' การทำความสะอาดเครื่องซักประจำวัน?","choices":["ทำความสะอาดช่องใส่น้ำยา","เช็ดบริเวณรอบฐานเครื่อง","ขัดยางขอบประตูด้วยน้ำส้มสายชู","เช็ดด้านนอกเครื่องด้วยผ้าชุบน้ำสบู่อ่อน"],"answer":2,"explain":"การขัดยางขอบประตูด้วยน้ำส้มสายชูเจือจาง เป็นกิจกรรมประจำสัปดาห์ ไม่ใช่ประจำวัน"},{"id":25,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"แม่บ้านเห็นกาแฟหกบนโต๊ะพับผ้า ลูกค้ายังอยู่ในร้าน ควรทำอย่างไร?","choices":["เช็ดทันทีที่เห็น ไม่รอให้ลูกค้าเห็นว่าสกปรก","รอครบรอบ 2 ชั่วโมงตามตาราง","รอให้ลูกค้าออกก่อนค่อยเช็ด","แจ้งลูกค้าให้ระวังโต๊ะ"],"answer":0,"explain":"หลักการสำคัญคือ ทำความสะอาดทันทีที่เห็น ไม่รอให้ลูกค้าเห็นว่าสกปรก เพราะความประทับใจเสียไปได้ทันที"},{"id":26,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ปลายวัน โต๊ะพับผ้าควรเช็ดด้วยอะไร?","choices":["น้ำเปล่า","น้ำยาฆ่าเชื้อ","ผงซักฟอก","ผ้าแห้ง"],"answer":1,"explain":"ปลายวัน ให้เช็ดโต๊ะพับผ้าด้วยน้ำยาฆ่าเชื้อ"},{"id":27,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ตรวจสายไฟและปลั๊กของเครื่องซัก ทำบ่อยแค่ไหน?","choices":["ปีละครั้ง","เดือนละครั้ง","ประจำสัปดาห์","ทุกวัน"],"answer":2,"explain":"ตรวจสายไฟและปลั๊กว่าไม่มีรอยไหม้และไม่หลวม ทำประจำสัปดาห์"},{"id":28,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"เก้าอี้นั่งรอที่เป็นเบาะผ้า ต้องดูดฝุ่นบ่อยแค่ไหน?","choices":["เดือนละครั้ง","สัปดาห์ละครั้ง","ตรวจตามสภาพ","ทุกวัน"],"answer":1,"explain":"ดูดฝุ่นเบาะนั่ง (ถ้าเป็นเบาะผ้า) สัปดาห์ละครั้ง"},{"id":29,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"แม่บ้านเจอผ้าฝ้ายขุยจำนวนมากในตะแกรงด้านล่างเครื่องอบ ควรทำอย่างไร?","choices":["ปล่อยไว้ก่อน เดี๋ยวก็ระบายออกเอง","ถอดตะแกรงออกตลอด","ดูดฝุ่นหรือเช็ดขุยผ้าออก","ฉีดน้ำล้าง"],"answer":2,"explain":"ถ้ามีตะแกรงด้านล่างเครื่องอบ ให้ดูดฝุ่นหรือเช็ดขุยผ้าออกด้วย ทำประจำวัน"},{"id":30,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"จุดที่ต้องระวังเป็นพิเศษเรื่องเชื้อราดำและน้ำขังคือ?","choices":["ยางขอบประตูเครื่องซัก","ช่องหยอดเหรียญ","พื้นโต๊ะพับ","แผงควบคุม"],"answer":0,"explain":"ตามตารางความถี่การทำความสะอาด ยางขอบประตูเครื่องซักเป็นจุดที่ต้องระวังเรื่องเชื้อราดำและน้ำขัง"},{"id":31,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ลูกค้าวางถุงพลาสติกขนาดใหญ่บนพื้นใกล้ทางเดิน แม่บ้านควรทำอย่างไรอันดับแรก?","choices":["ดุลูกค้าให้ย้าย","ขอความกรุณาให้ลูกค้าย้ายเพื่อกันลื่นล้ม","ปล่อยไว้เพราะเป็นของลูกค้า","ย้ายเองโดยไม่บอก"],"answer":1,"explain":"พื้นเปียกหรือสิ่งกีดขวางอาจทำให้ลูกค้าลื่นล้ม ควรขอความกรุณาให้ย้ายอย่างสุภาพ ตามหลักดูแลความปลอดภัย"},{"id":32,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"คราบจับแข็งในช่องใส่ผงซักฟอกเกิดจากอะไร?","choices":["ผงซักฟอกตกค้างไม่ได้ล้างออก","ฝุ่นในอากาศ","แมลงเข้าไป","น้ำกระด้าง"],"answer":0,"explain":"ช่องใส่ผงซักฟอกมีคราบจับแข็งจากผงซักฟอกตกค้าง ต้องดึงออกมาล้างน้ำเป็นประจำวัน"},{"id":33,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ตรวจขาเก้าอี้นั่งรอ ต้องระวังเรื่องใด?","choices":["ขาเก้าอี้มั่นคง ไม่โยก","วัสดุของขา","สีของขา","ความสูงเท่ากัน"],"answer":0,"explain":"ตรวจขาเก้าอี้ว่ามั่นคง ไม่โยก เพื่อความปลอดภัยของลูกค้า"},{"id":34,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"ลูกค้าทำขนมหกที่พื้นใกล้ทางเดิน แม่บ้านกำลังพับผ้ารับฝากอยู่ ควรทำอย่างไร?","choices":["ขอให้ลูกค้าเก็บเอง","รอจนถึงรอบทำความสะอาดทุก 2 ชั่วโมง","หยุดพับชั่วคราว เก็บกวาดทันที","พับผ้ารับฝากให้เสร็จก่อน"],"answer":2,"explain":"พื้นเปียกหรือสกปรกอาจทำให้ลูกค้าลื่นล้ม ต้องเช็ดทันที ตามหลัก ทำความสะอาดทันทีที่เห็น"},{"id":35,"category":"ทำความสะอาด","difficulty":"ปานกลาง","q":"หลักการตรวจถังซักก่อนปิดเครื่อง คือ?","choices":["ปิดประตูทันทีหลังลูกค้าออก","ฉีดน้ำหอมใส่","ไม่ต้องตรวจถ้ามีการรับฝาก","ตรวจของลืม เก็บใส่กล่องของหายแยก"],"answer":3,"explain":"ตรวจถังซักว่ามีของลืม เช่น ทิชชู่ เหรียญ ไฟแช็ก ปากกา ถ้าเจอให้เก็บใส่กล่องของหายแยกไว้"},{"id":36,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเห็นยางขอบประตูเครื่องซักเริ่มเป็นจุดดำเล็กๆ และมีน้ำขัง ทำอะไรเป็นอันดับแรก?","choices":["รอให้ครบสัปดาห์ค่อยขัด","เช็ดน้ำขังออก แล้วขัดด้วยน้ำส้มสายชูเจือจางทันที","แจ้งเจ้าของร้านอย่างเดียว","ใช้น้ำยาฟอกขาวขัดทันที"],"answer":1,"explain":"จุดดำคือเชื้อรา ต้องเช็ดน้ำขังออกและขัดด้วยน้ำส้มสายชูเจือจาง (ตามคู่มือสัปดาห์ละ) แต่ตามหลัก ทำความสะอาดทันทีที่เห็น ควรจัดการเลย"},{"id":37,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านพบขุยผ้ากองมากที่ตะแกรงด้านล่างเครื่องอบทุกวัน ตีความได้อย่างไร?","choices":["สถานการณ์ปกติ ทำความสะอาดประจำวันก็พอ","เครื่องเสีย ต้องแจ้งช่างทันที","ลูกค้าใส่ผ้ามากเกิน","ใช้เครื่องผิดประเภท"],"answer":0,"explain":"คู่มือระบุให้ดูดฝุ่นหรือเช็ดขุยผ้าจากตะแกรงด้านล่างเป็นกิจกรรมประจำวัน เป็นเรื่องปกติของเครื่องอบ"},{"id":38,"category":"ทำความสะอาด","difficulty":"ยาก","q":"ผ้าลูกค้ามีกลิ่นอับ แม้แม่บ้านอบนานแล้ว เป็นเพราะอะไร?","choices":["ผ้าเก่าเกินไป","ลูกค้าใส่น้ำยาน้อย","เครื่องอบเย็นไป","อบไม่แห้งดี ความชื้นยังอยู่"],"answer":3,"explain":"ผ้ายังมีกลิ่นอับแสดงว่าอบไม่แห้ง เป็นจุดที่ต้องระวังในบริการรับฝาก"},{"id":39,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านที่ Otteri พบว่าเครื่อง 28 kg มียางขอบประตูเสื่อม กลิ่นอับติดผ้าลูกค้า ควรทำอย่างไรเป็นอันดับแรก?","choices":["ใส่น้ำยาดับกลิ่นทุกรอบ","ขัดด้วยน้ำส้มสายชูแรงๆ","หยุดใช้เฉยๆ ไม่ต้องบอกใคร","ติดป้ายเครื่องเสียทันทีและแจ้งเจ้าของร้าน"],"answer":3,"explain":"กรณียางขอบประตูเสื่อมจนเป็นเชื้อราฝังลึกและกลิ่นติดผ้าลูกค้า ต้องติดป้ายเครื่องเสียและแจ้งเจ้าของร้านตามระเบียบฉุกเฉินด้านเครื่อง"},{"id":40,"category":"ทำความสะอาด","difficulty":"ยาก","q":"กรณีไหนที่ห้ามใช้ผ้าเปียกเช็ด?","choices":["ยางขอบประตู","แผงควบคุมเครื่อง","กระจกประตู","พื้นร้าน"],"answer":1,"explain":"ห้ามใช้ผ้าเปียกเช็ดแผงควบคุมและปุ่ม เพราะอาจทำให้แผงวงจรเสีย ต้องใช้ผ้าแห้งเท่านั้น"},{"id":41,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเปิดประตูเครื่องอบหลังลูกค้าใช้ทันที พบว่ามีกลิ่นเหม็นผิดปกติ คล้ายไหม้ ควรทำอย่างไร?","choices":["เปิดเครื่องรอบใหม่ระบายกลิ่น","ปิดเครื่อง ถอดปลั๊ก ห้ามเปิดประตูทันที รอ 30 นาที แจ้งเจ้าของร้าน","ใช้พัดลมเป่าเข้าไป","เทน้ำเข้าไปดับ"],"answer":1,"explain":"กลิ่นไหม้/มีควันในเครื่องอบ: ปิดเครื่อง ถอดปลั๊กทันที ห้ามเปิดประตู (อากาศเข้าจะลุกไหม้แรงขึ้น) รอ 30 นาที แล้วแจ้งเจ้าของร้าน"},{"id":42,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเห็นน้ำหยดใต้เครื่องซักเล็กน้อย ลูกค้ากำลังใช้งานอยู่ ควรทำอย่างไร?","choices":["ปิดวาล์วน้ำขณะลูกค้ายังใช้","ไม่ทำอะไรเพราะไม่ใช่หน้าที่","เช็ดน้ำที่พื้นทันทีกันลื่นล้ม สังเกตว่ารั่วต่อเนื่องหรือไม่","รอลูกค้าใช้เสร็จก่อนค่อยเช็ด"],"answer":2,"explain":"ต้องเช็ดน้ำที่พื้นทันทีเพื่อกันลูกค้าลื่นล้ม และสังเกตว่าน้ำรั่วต่อเนื่องไหม ถ้ารั่วชัดต้องปิดวาล์วและแจ้งเจ้าของร้าน"},{"id":43,"category":"ทำความสะอาด","difficulty":"ยาก","q":"ก่อนปิดร้าน ทำความสะอาด Lint Filter ละเอียดเฉพาะกรณีใด?","choices":["วันจันทร์เท่านั้น","ถ้ามีอะไรผิดปกติหรือสกปรก","ไม่ต้องทำเลย","ทุกเครื่องเสมอ"],"answer":1,"explain":"ตามขั้นตอนปิดร้าน ทำความสะอาด Lint Filter ทุกเครื่องอย่างละเอียดถ้ามีอะไรผิดปกติหรือสกปรก"},{"id":44,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเห็นช่องระบายอากาศด้านหลังเครื่องอบมีฝุ่นและขุยผ้าจับหนา ควรทำอะไรเป็นอันดับแรก?","choices":["ใช้แปรงนุ่มหรือเครื่องดูดฝุ่นทำความสะอาดเลย เพราะกระทบประสิทธิภาพและเสี่ยงไฟไหม้","ปล่อยไว้เพราะอยู่ด้านหลัง ไม่มีใครเห็น","ฉีดน้ำล้าง","แค่เช็ดด้วยผ้าหมาด"],"answer":0,"explain":"ช่องระบายอากาศตันทำให้เครื่องร้อนผิดปกติและเสี่ยงไฟไหม้ ใช้แปรงนุ่มหรือเครื่องดูดฝุ่นทำความสะอาด"},{"id":45,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านพบว่ามีน้ำซึมจากท่อระบายน้ำด้านหลังเครื่องซัก ขั้นตอนแรกที่ควรทำคือ?","choices":["ปิดทั้งร้านเลย","ปิดวาล์วน้ำของเครื่องนั้นและเช็ดน้ำพื้นทันที","ใช้น้ำยาดับกลิ่นใส่","ใช้ผ้าคลุมไว้รอช่าง"],"answer":1,"explain":"กรณีน้ำรั่วจากเครื่อง: ปิดวาล์วน้ำเครื่องนั้นทันที ปิดเครื่องถอดปลั๊ก เช็ดน้ำที่พื้น และติดป้ายเครื่องเสีย แจ้งเจ้าของร้าน"},{"id":46,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเห็นแผงควบคุมเปียกน้ำเล็กน้อย ควรทำอย่างไร?","choices":["ไม่ต้องทำอะไร เดี๋ยวก็แห้ง","ฉีดสเปรย์ทำความสะอาด","เช็ดด้วยผ้าเปียกอีกรอบ","เช็ดด้วยผ้าแห้งทันที และตรวจว่าน้ำซึมเข้าด้านในหรือไม่"],"answer":3,"explain":"แผงควบคุมต้องเช็ดด้วยผ้าแห้งเท่านั้น ห้ามใช้ผ้าเปียก เพราะน้ำเข้าจะทำให้แผงวงจรเสีย"},{"id":47,"category":"ทำความสะอาด","difficulty":"ยาก","q":"กรณีพบขยะล้นออกจากถัง ขณะมีลูกค้าหลายคนในร้าน ผลกระทบที่สำคัญที่สุดคือ?","choices":["ค่าใช้จ่ายเพิ่มขึ้น","ความประทับใจของลูกค้าเสียหายอย่างมาก เพราะดูสกปรก","กลิ่นเหม็นในร้าน","แมลงสาบมา"],"answer":1,"explain":"คู่มือระบุห้ามให้ขยะล้นออกมาเพราะดูสกปรกมาก ลูกค้าเห็นแล้วครั้งเดียว ความประทับใจก็เสียได้ทันที"},{"id":48,"category":"ทำความสะอาด","difficulty":"ยาก","q":"กิจกรรมใดเป็นกิจกรรมประจำสัปดาห์ของเครื่องซัก?","choices":["ตรวจของลืมในถัง","เช็ดยางขอบประตูทุกรอบ","เปิดประตูเครื่องระบายความชื้น","รันโปรแกรมล้างถังด้วยน้ำร้อน"],"answer":3,"explain":"การรันโปรแกรมล้างถังของเครื่องด้วยน้ำร้อนและน้ำยาล้างเครื่องเป็นกิจกรรมประจำสัปดาห์ ทำสัปดาห์ละ 1-2 ครั้ง"},{"id":49,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเห็นว่าผ้ารับฝากของลูกค้ามีกลิ่นอับเล็กน้อยหลังอบเสร็จ ควรทำอะไรเป็นอันดับแรก?","choices":["ฉีดน้ำหอมแก้ไข","ส่งให้ลูกค้าตามนัด","อบเพิ่มอีกรอบให้แน่ใจว่าแห้งสนิท แล้วค่อยพับ","ขอโทษลูกค้าเลย"],"answer":2,"explain":"ผ้ามีกลิ่นอับ = อบไม่แห้ง เป็นปัญหาที่ทำให้ลูกค้าหายไป ต้องอบเพิ่มจนแห้งสนิทก่อนส่ง"},{"id":50,"category":"ทำความสะอาด","difficulty":"ยาก","q":"แม่บ้านเปลี่ยนถุงขยะแล้ว แต่ถังยังมีกลิ่น ควรทำอย่างไร?","choices":["ล้างถังด้วยน้ำสบู่ทันที (ตามหลักทำความสะอาดทันทีที่เห็น/ได้กลิ่น)","ปล่อยไว้รอครบสัปดาห์","ย้ายถังออกไปนอกร้าน","ฉีดน้ำหอมกลบ"],"answer":0,"explain":"ปกติล้างถังขยะด้วยน้ำสบู่สัปดาห์ละครั้ง แต่ถ้ามีกลิ่นต้องล้างทันทีตามหลัก ทำความสะอาดทันทีที่เห็น"},{"id":51,"category":"บริการ","difficulty":"ง่าย","q":"เมื่อลูกค้าเดินเข้าร้าน แม่บ้านควรทำอะไรเป็นอันดับแรก?","choices":["ถามว่าจะใช้เครื่องไหน","ส่งใบราคาให้","มองหน้า ยิ้ม กล่าวทักทายว่า สวัสดีค่ะ","ก้มหน้าทำงานต่อ"],"answer":2,"explain":"มาตรฐานการต้อนรับ: มองหน้าลูกค้า ยิ้มและกล่าวทักทายว่า สวัสดีค่ะ หรือ ยินดีต้อนรับค่ะ"},{"id":52,"category":"บริการ","difficulty":"ง่าย","q":"ถ้าแม่บ้านกำลังทำงานอยู่และลูกค้าเข้ามา ควรทำอย่างไร?","choices":["ส่งสายตาแทนการทักทาย","ตะโกนทักทายจากที่ทำงาน","ทำงานต่อให้เสร็จก่อน","หยุดงานชั่วคราว ถามว่ามีอะไรให้ช่วยไหมคะ"],"answer":3,"explain":"ถ้ากำลังทำงานอยู่ ให้หยุดงานชั่วคราว แล้วถามว่า มีอะไรให้ช่วยไหมคะ"},{"id":53,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าใหม่มักมีพฤติกรรมแบบใด?","choices":["ดูสับสน เดินมองเครื่อง","ตรงไปที่เครื่องเลย","นั่งรอโดยไม่ทำอะไร","ถามราคาเป็นอันดับแรก"],"answer":0,"explain":"ลูกค้าใหม่มักดูสับสน เดินมองเครื่อง ลูกค้าประจำจะตรงไปที่เครื่องเลย"},{"id":54,"category":"บริการ","difficulty":"ง่าย","q":"ผ้า 1 ตะกร้าเล็ก (ผ้าใส่ 3-4 วัน) เหมาะกับเครื่องขนาดใด?","choices":["25-28 kg","17-18 kg","12-14 kg","9-10 kg"],"answer":3,"explain":"เครื่อง 9-10 kg เหมาะกับผ้า 1 ตะกร้าเล็ก ผ้าใส่ 3-4 วัน คนโสด นักศึกษา"},{"id":55,"category":"บริการ","difficulty":"ง่าย","q":"ผ้าห่ม ผ้านวม พรม เหมาะกับเครื่องขนาดใด?","choices":["25-28 kg","12-14 kg","17-18 kg","9-10 kg"],"answer":0,"explain":"เครื่อง 25-28 kg เหมาะกับผ้าจำนวนมาก เช่น ผ้าห่ม ผ้านวม พรม ครอบครัวใหญ่ หอพัก"},{"id":56,"category":"บริการ","difficulty":"ง่าย","q":"ผ้าครอบครัว 3-4 คน 1-2 สัปดาห์ + ผ้าปูที่นอน เหมาะกับเครื่องขนาดใด?","choices":["25-28 kg","9-10 kg","12-14 kg","17-18 kg"],"answer":3,"explain":"เครื่อง 17-18 kg เหมาะกับผ้า 2 ตะกร้า ผ้า 1-2 สัปดาห์ + ผ้าปูที่นอน ครอบครัว 3-4 คน"},{"id":57,"category":"บริการ","difficulty":"ง่าย","q":"ตามคู่มือ ถ้าลูกค้าไม่ได้ถามอุณหภูมิน้ำ ควรใช้ค่าเริ่มต้นเป็นอะไร?","choices":["น้ำเย็น","น้ำอุ่น","แล้วแต่เครื่อง","น้ำร้อน"],"answer":0,"explain":"ถ้าลูกค้าไม่ถามอุณหภูมิ ให้ใช้น้ำเย็นเป็นค่าเริ่มต้นเสมอ"},{"id":58,"category":"บริการ","difficulty":"ง่าย","q":"ผ้าสีสด ผ้ายีนส์ ผ้าไหม ควรซักด้วยน้ำอุณหภูมิใด?","choices":["น้ำอุ่น","น้ำเดือด","น้ำร้อน","น้ำเย็น"],"answer":3,"explain":"น้ำเย็นเหมาะกับผ้าสี ผ้ายีนส์ ผ้าไหม ผ้าบาง ผ้าตกสีง่าย ชุดวัยรุ่น เสื้อยืดสีสด"},{"id":59,"category":"บริการ","difficulty":"ง่าย","q":"ผ้าขาว ผ้าปูที่นอน ผ้าเช็ดตัว เหมาะกับน้ำอุณหภูมิใด?","choices":["น้ำเย็น","น้ำเย็นจัด","น้ำร้อน","น้ำอุ่น"],"answer":2,"explain":"น้ำร้อนเหมาะกับผ้าขาว ผ้าปูที่นอน ผ้าเช็ดตัว ผ้าอ้อม ผ้าของผู้ป่วย คราบมันหนัก"},{"id":60,"category":"บริการ","difficulty":"ง่าย","q":"ผ้าทั่วไป ผ้าทำงาน ผ้าฝ้ายผสม ผ้าเด็ก เหมาะกับน้ำอุณหภูมิใด?","choices":["น้ำร้อน","น้ำแข็ง","น้ำอุ่น","น้ำเย็น"],"answer":2,"explain":"น้ำอุ่นเหมาะกับผ้าทั่วไป ผ้าทำงาน ผ้าฝ้ายผสม ผ้าเด็ก ใช้ได้กับเกือบทุกประเภท"},{"id":62,"category":"บริการ","difficulty":"ง่าย","q":"โหมดอบเย็นเหมาะกับผ้าประเภทใด?","choices":["ผ้าปูที่นอน","ผ้าไหม ลูกไม้ ชุดชั้นใน ผ้ายืด ชุดกีฬา","ผ้าฝ้ายหนา","ผ้าเช็ดตัว"],"answer":1,"explain":"อบเย็นเหมาะกับผ้าไหม ลูกไม้ ชุดชั้นใน ผ้ายืด ชุดกีฬา รองเท้าผ้าใบ ใช้เวลา 60-90 นาที"},{"id":64,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าถามว่า 'ซักเสร็จกี่โมง' บทพูดมาตรฐานเริ่มอย่างไร?","choices":["ประมาณ ... นาทีค่ะ ถ้าอบต่อเลยจะใช้เวลารวมประมาณ ... ชั่วโมง ... นาทีค่ะ","แล้วแต่เครื่องค่ะ","ไม่ทราบค่ะ","รอดูเอาเองนะคะ"],"answer":0,"explain":"บทพูดมาตรฐาน: ประมาณ ... นาทีค่ะ ถ้าอบต่อเลยจะใช้เวลารวมประมาณ ... ชั่วโมง ... นาทีค่ะ"},{"id":65,"category":"แนะนำผ้า","difficulty":"ง่าย","q":"ผ้าใดที่ห้ามซักน้ำร้อนเด็ดขาด เพราะหดอย่างรุนแรง 30-50%?","choices":["ผ้าฝ้าย","ผ้าขนสัตว์ / Wool / Cashmere","ผ้าโพลีเอสเตอร์","ผ้ายีนส์เก่า"],"answer":1,"explain":"ผ้าขนสัตว์ Wool Cashmere น้ำร้อนทำให้หดอย่างรุนแรง 30-50% เปลี่ยนรูปถาวร"},{"id":66,"category":"แนะนำผ้า","difficulty":"ง่าย","q":"ลูกค้าจะอบผ้าที่มีคราบน้ำมัน บทพูดมาตรฐานควรพูดว่าอย่างไร?","choices":["แล้วแต่ลูกค้าค่ะ","อบได้ค่ะถ้าเสี่ยงเอง","ขอโทษนะคะ ผ้าที่เปื้อนน้ำมันอบในเครื่องไม่ได้ค่ะ เพราะอาจติดไฟได้ ขอแนะนำให้ตากแห้งที่บ้านนะคะ","อบได้ค่ะแต่ใช้อุณหภูมิต่ำ"],"answer":2,"explain":"บทพูดมาตรฐาน: ผ้านี้มีคราบน้ำมันใช่ไหมคะ ขอโทษนะคะ ผ้าที่เปื้อนน้ำมันอบไม่ได้ค่ะ เพราะอาจติดไฟ ขอแนะนำให้ตากแห้งที่บ้าน"},{"id":67,"category":"แนะนำผ้า","difficulty":"ง่าย","q":"ผ้าที่ติดป้าย Dry Clean Only ทำอย่างไร?","choices":["ซักด้วยน้ำเย็นได้","ซักด้วยน้ำอุ่นได้","ห้ามซักในเครื่องเลย ต้องบอกลูกค้าให้ส่งซักแห้ง","ซักได้แต่ห้ามอบ"],"answer":2,"explain":"ผ้า Dry Clean Only ออกแบบให้ซักแห้งเท่านั้น ห้ามซักน้ำเลย ห้ามซักในเครื่อง ต้องบอกลูกค้าให้ส่งซักแห้งที่ร้านอื่น"},{"id":68,"category":"แนะนำผ้า","difficulty":"ง่าย","q":"ลูกค้าใส่ผ้าเยอะเกิน บทพูดมาตรฐานเริ่มอย่างไร?","choices":["คุณลูกค้าคะ ผ้าเยอะนิดนึงนะคะ ถ้าใส่เยอะเกินผ้าจะซักไม่สะอาดและเครื่องอาจสะดุดได้","ห้ามใส่เกินขนาดเครื่องค่ะ","คุณใส่ผ้ามากไปนะคะ","ลูกค้าจะใส่อะไรก็ได้ค่ะ"],"answer":0,"explain":"บทพูด: คุณลูกค้าคะ ผ้าเยอะนิดนึงนะคะ ถ้าใส่เยอะเกินผ้าจะซักไม่สะอาดและเครื่องอาจสะดุดได้ ขอแนะนำให้แบ่งเป็น 2 เครื่อง หรือเปลี่ยนเป็นเครื่องใหญ่ขึ้นไหมคะ"},{"id":69,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าวัยทำงาน (Otteri) ใช้น้ำเสียงแบบใด?","choices":["ดังและสนุกสนาน","นิ่งเฉยๆ","สุภาพและเป็นทางการเล็กน้อย","เป็นกันเองมาก"],"answer":2,"explain":"สำหรับลูกค้าวัยทำงาน (Otteri) ใช้น้ำเสียงสุภาพและเป็นทางการเล็กน้อย"},{"id":70,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าวัยรุ่น (Teddy 1, 2) ใช้น้ำเสียงแบบใด?","choices":["เป็นกันเองมากขึ้น","นิ่งเฉยไม่ต้องคุย","ดุเข้มงวด","เป็นทางการเหมือน Otteri"],"answer":0,"explain":"สำหรับลูกค้าวัยรุ่น (Teddy 1, 2) ใช้น้ำเสียงเป็นกันเองมากขึ้น"},{"id":72,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าใหม่เดินเข้ามาสำรวจ บทพูดมาตรฐานคืออะไร?","choices":["สวัสดีค่ะ ใช้บริการครั้งแรกใช่ไหมคะ ให้แนะนำการใช้เครื่องไหมคะ","มีอะไรให้ช่วยไหมคะ","จะใช้บริการอะไรคะ","ไปทางนั้นค่ะ"],"answer":0,"explain":"บทพูดมาตรฐานสำหรับลูกค้าใหม่: สวัสดีค่ะ ใช้บริการครั้งแรกใช่ไหมคะ ให้แนะนำการใช้เครื่องไหมคะ"},{"id":74,"category":"แนะนำผ้า","difficulty":"ง่าย","q":"ผ้าที่ซักน้ำร้อนได้สบายคือผ้าใด?","choices":["ผ้ายีนส์ใหม่","ผ้าสีแดงสด","ผ้าขาว 100% ผ้าฝ้ายขาว ผ้าผู้ป่วย","ผ้าไหม"],"answer":2,"explain":"ผ้าที่ซักน้ำร้อนได้สบาย: ผ้าขาว 100% ผ้าฝ้ายขาว ผ้าที่ต้องการฆ่าเชื้อ ผ้าที่มีคราบมันหนัก ผ้าที่ซักหลายครั้งแล้วและมั่นใจว่าสีไม่ตก"},{"id":75,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้านำเสื้อยืดสกรีนเสื้อแฟนคลับมา บอกว่าจะอบร้อน แม่บ้านควรพูดว่า?","choices":["ห้ามอบเด็ดขาดค่ะ","อบได้เลยค่ะ","ลูกค้าจะอบอะไรก็ได้","ผ้าที่มีลายสกรีน ลายรีดติดอบร้อนไม่ได้นะคะ ลายจะแตก ลอก หลุด ขอแนะนำอบเย็นหรืออุ่นเบาๆ ค่ะ"],"answer":3,"explain":"ผ้าสกรีน/รีดติด อบร้อนจะทำให้ลายแตก ลอก หลุด เปลี่ยนสี ลายรีดติดจะหลุดออก ลูกค้าวัยรุ่น Teddy ระวังจุดนี้มาก"},{"id":76,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้านำชุดกีฬาเลกกิ้งมาอบ แม่บ้านควรแนะนำอย่างไร?","choices":["อบอุ่นปานกลาง","แนะนำอบเย็น เพราะเป็นผ้ายางยืด ความร้อนทำให้ยางยืดเสื่อม หลวม ยืด เสียทรง","อบร้อนได้เลย","ไม่ต้องอบเลย"],"answer":1,"explain":"ผ้ามีส่วนผสมยางยืด (Spandex/Elastane/Lycra) ห้ามอบร้อน ใช้อบเย็น เพราะยางยืดเสื่อม กลุ่มลูกค้า Teddy 1, 2 ใส่บ่อยมาก"},{"id":77,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้าบอกว่าผ้ามีคราบเลือดและคราบนม จะใช้น้ำร้อนซัก แม่บ้านควรพูดว่า?","choices":["ใช้น้ำเดือดเลย","ใช้น้ำร้อนเลยค่ะ","น้ำร้อนจะทำให้คราบโปรตีนสุกติดผ้าถาวร เหมือนไข่สุก แนะนำซักน้ำเย็นชะคราบก่อน แล้วค่อยรอบสองด้วยน้ำอุ่น","แนะนำให้ทิ้งผ้าไป"],"answer":2,"explain":"คราบโปรตีน (เลือด ไข่ นม) จะ สุก ติดเส้นใยถาวรเมื่อโดนน้ำร้อน ต้องใช้น้ำเย็นซักก่อนเพื่อชะคราบออก แล้วค่อยซักรอบสองด้วยน้ำอุ่น"},{"id":78,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้านำผ้ายีนส์ Raw Denim ตัวใหม่ที่ยังไม่เคยซักมา เลือกน้ำร้อน เพราะอะไรจึงไม่ควร?","choices":["ทำให้ผ้าหนาขึ้น","สีตกหนักมาก หดอย่างรุนแรง 5-10% เปลี่ยนรูปกางเกง","ทำให้ขาว","ไม่มีปัญหาอะไร"],"answer":1,"explain":"ผ้ายีนส์ดิบ/ยีนส์สีเข้มที่ยังไม่ได้ซัก น้ำร้อนทำให้สีตกหนัก หดรุนแรง 5-10% เปลี่ยนรูปกางเกง"},{"id":79,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ทำไมต้องระวังการอบร้อนกับเสื้อบลาวส์ทำงานผู้หญิงผ้าโพลีเอสเตอร์บาง?","choices":["ความร้อนสูงทำให้เส้นใยสังเคราะห์ละลายติดกัน ผ้าจะแข็ง เกิดรอยย่นถาวร","เปียกง่าย","ทำให้ขาว","ทำให้ผ้านุ่ม"],"answer":0,"explain":"ผ้าโพลีเอสเตอร์บาง/ซาติน อบร้อนทำให้เส้นใยสังเคราะห์ละลายติดกัน ผ้าแข็ง เกิดรอยย่นถาวร ผิวสัมผัสเปลี่ยน"},{"id":81,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"การซักน้ำร้อนทำให้ค่าไฟเพิ่มประมาณกี่เปอร์เซ็นต์?","choices":["ไม่เพิ่ม","10-20%","100%","30-60%"],"answer":3,"explain":"น้ำร้อนกินไฟมาก ค่าไฟเพิ่ม 30-60% เพราะต้องอุ่นน้ำ ทำให้ต้นทุนร้านสูงขึ้น"},{"id":82,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้านำเสื้อชั้นในที่มีลูกไม้และโครงพลาสติกมา ควรแนะนำอย่างไร?","choices":["ซักน้ำร้อน อบร้อน","ใช้น้ำเย็นแต่อบร้อนได้","ห้ามทั้งซักน้ำร้อนและอบร้อน เพราะลูกไม้ขาด โครงบิด ฟองน้ำเสีย","ใช้น้ำร้อนแต่ห้ามอบ"],"answer":2,"explain":"ผ้าลูกไม้+โครงพลาสติก ห้ามน้ำร้อน (ลูกไม้ขาด) และห้ามอบร้อน (โครงบิด ฟองน้ำเสีย ยางยืดเสื่อม)"},{"id":83,"category":"บริการ","difficulty":"ปานกลาง","q":"ลูกค้าทำของหายในเครื่อง บทพูดมาตรฐานคือ?","choices":["ของหายไม่ใช่ความรับผิดชอบ","คุณลูกค้าลืมของไว้ค่ะ พอจะบอกได้ไหมคะว่าเป็นอะไร เพื่อให้ตรงกับที่เก็บไว้","ไปดูเอาเอง","บอกของให้ลูกค้ายืนยัน"],"answer":1,"explain":"บทพูด: คุณลูกค้าลืมของไว้ค่ะ พอจะบอกได้ไหมคะว่าเป็นอะไร เพื่อให้ตรงกับที่เก็บไว้ (ห้ามบอกของที่เก็บไว้ก่อน เพื่อยืนยันตัวเจ้าของ)"},{"id":84,"category":"บริการ","difficulty":"ปานกลาง","q":"ลูกค้ามารอ แต่เครื่องเต็ม บทพูดมาตรฐานคือ?","choices":["เครื่องเต็มก็เต็ม ทำอะไรไม่ได้","กลับมาใหม่ค่ะ","ลูกค้ารอเอาเอง","ขอโทษด้วยนะคะ ตอนนี้เครื่องเต็มหมดเลย เครื่องที่ว่างเร็วที่สุดอีกประมาณ 15 นาทีค่ะ หรือจะฝากซักดีไหมคะ"],"answer":3,"explain":"บทพูดมาตรฐาน: ขอโทษด้วยนะคะ ตอนนี้เครื่องเต็มหมดเลย เครื่องที่ว่างเร็วที่สุดอีกประมาณ 15 นาทีค่ะ หรือจะฝากซักดีไหมคะ"},{"id":85,"category":"บริการ","difficulty":"ปานกลาง","q":"ขั้นตอนแรกของการรับผ้าฝากจากลูกค้า?","choices":["ตรวจนับและบันทึกจำนวนผ้าโดยประมาณต่อหน้าลูกค้า","ซักทันทีไม่ต้องดู","เก็บเงินก่อน","แยกผ้าขาวกับผ้าสี"],"answer":0,"explain":"ขั้นตอนแรกในการรับผ้าฝาก: ตรวจนับและบันทึกจำนวนผ้าโดยประมาณต่อหน้าลูกค้า (หรือบันทึกภาพและวิดีโอ)"},{"id":86,"category":"บริการ","difficulty":"ปานกลาง","q":"ตรวจกระเป๋ากางเกงและเสื้อ เพื่อหาอะไร?","choices":["ขนาดของผ้า","ป้ายราคา","ตำหนิผ้า","ของลืม เช่น เงิน บัตร โทรศัพท์ กระดาษ"],"answer":3,"explain":"ตรวจกระเป๋ากางเกงและเสื้อทุกตัว เพื่อหาของลืม เช่น เงิน บัตร โทรศัพท์ กระดาษ"},{"id":87,"category":"บริการ","difficulty":"ปานกลาง","q":"การพับเสื้อยืดมาตรฐานพับเป็นรูปทรงและขนาดประมาณเท่าใด?","choices":["ม้วนกลม","ห่อด้วยกระดาษ","สามเหลี่ยม 30×30 ซม.","สี่เหลี่ยม ขนาด 20×25 ซม."],"answer":3,"explain":"เสื้อยืด: พับเป็นสี่เหลี่ยม ขนาดประมาณ 20×25 เซนติเมตร"},{"id":88,"category":"บริการ","difficulty":"ปานกลาง","q":"การพับกางเกงมาตรฐานทำอย่างไร?","choices":["พับครึ่งตามยาว แล้วพับสั้นเป็น 3 ส่วน","แค่ใส่ถุงไม่ต้องพับ","ม้วนกลม","พับเป็นสามเหลี่ยม"],"answer":0,"explain":"กางเกง: พับครึ่งตามยาว แล้วพับสั้นเป็น 3 ส่วน"},{"id":89,"category":"บริการ","difficulty":"ปานกลาง","q":"ก่อนซักผ้ารับฝาก ต้องสอบถามลูกค้าเรื่องใด?","choices":["ที่อยู่ลูกค้า","อาชีพลูกค้า","ราคาผ้า","มีผ้าตกสีไหม มีผ้าที่ห้ามอบไหม"],"answer":3,"explain":"สอบถามผ้าพิเศษ เช่น มีผ้าตกสีไหมคะ มีผ้าที่ห้ามอบไหมคะ"},{"id":90,"category":"บริการ","difficulty":"ปานกลาง","q":"การออกใบรับฝากต้องบันทึกข้อมูลใดบ้าง?","choices":["แค่ชื่อลูกค้า","แค่จำนวนผ้า","แค่ราคา","ชื่อลูกค้า เบอร์โทร และจำนวนผ้า"],"answer":3,"explain":"ออกใบรับฝาก หรือบันทึกในสมุด พร้อมชื่อลูกค้า เบอร์โทร และจำนวนผ้า"},{"id":91,"category":"บริการ","difficulty":"ปานกลาง","q":"ทำไมแม่บ้านต้องแยกผ้าขาวและผ้าสีก่อนซักในบริการรับฝาก?","choices":["แยกตามขนาด","แยกตามกลิ่น","ป้องกันสีตกใส่ผ้าขาว","ประหยัดเวลา"],"answer":2,"explain":"แยกผ้าขาวและผ้าสีทันทีก่อนซัก เพื่อป้องกันสีตกใส่ผ้าขาว"},{"id":92,"category":"บริการ","difficulty":"ปานกลาง","q":"ลูกค้าใหม่บอกว่าผ้ามีปริมาณไม่แน่ใจ แม่บ้านควรทำอย่างไร?","choices":["เลือกเครื่องใหญ่สุด","ปฏิเสธบริการ","ชั่งให้ลูกค้าดู","เลือกเครื่องเล็กที่สุดเสมอ"],"answer":2,"explain":"ถ้าลูกค้าไม่ทราบปริมาณผ้า ให้ชั่งให้ลูกค้าดู"},{"id":93,"category":"บริการ","difficulty":"ปานกลาง","q":"ชุดชั้นในและถุงเท้าในบริการรับฝาก (กรณีเก็บค่าบริการ) ควรทำอย่างไร?","choices":["ใส่รวมกับเสื้อผ้า","พับธรรมดา","ใส่ถุงแยกพิเศษ ไม่ปะปนกับเสื้อผ้าทั่วไป","ทิ้งไป"],"answer":2,"explain":"ชุดชั้นในและถุงเท้า: ใส่ถุงแยกพิเศษ ไม่ปะปนกับเสื้อผ้าทั่วไป (กรณีที่เก็บค่าบริการลูกค้า)"},{"id":94,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ระยะเวลาอบโดยประมาณของโหมดอบเย็นคือ?","choices":["2 ชั่วโมง","30-40 นาที","20-30 นาที","60-90 นาที"],"answer":3,"explain":"โหมดอบเย็นใช้เวลา 60-90 นาที"},{"id":95,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ระยะเวลาอบโดยประมาณของโหมดอบร้อนคือ?","choices":["10 นาที","2 ชั่วโมง","30-40 นาที","20 นาที"],"answer":2,"explain":"โหมดอบร้อนใช้เวลา 30-40 นาที เหมาะกับผ้าฝ้ายหนา"},{"id":96,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้าจะซักผ้าขาวกับเสื้อสีแดงสด ในเครื่องเดียวกัน ด้วยน้ำร้อน แม่บ้านควรเตือนเรื่องใดสำคัญที่สุด?","choices":["น้ำร้อนทำให้ผ้าหด","น้ำร้อนทำให้ค่าไฟแพง","สีตกอย่างรุนแรง สีย้อมหลุดไปติดผ้าขาวกลายเป็นสีชมพู","น้ำร้อนทำให้ผ้าเปื่อย"],"answer":2,"explain":"น้ำร้อนกับผ้าสีเข้ม/สีสด สีตกรุนแรงและที่อันตรายที่สุดคือสีตกไปติดผ้าตัวอื่น เช่น ผ้าขาวกลายเป็นชมพู"},{"id":97,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"กลุ่มลูกค้า Teddy 1, 2 มักนำผ้าประเภทใดมาที่ต้องระวังเป็นพิเศษ?","choices":["ผ้าปูที่นอน","ผ้าสีและเสื้อแฟชั่นสีสด ผ้าสกรีน เลกกิ้ง","ผ้าเช็ดตัว","ผ้าฝ้ายขาว"],"answer":1,"explain":"ลูกค้าวัยรุ่นที่ Teddy 1, 2 ส่วนใหญ่ซักผ้าสีและเสื้อแฟชั่นสีสด ใส่เสื้อสกรีน เลกกิ้ง สปอร์ตบรา ต้องระวังพิเศษ"},{"id":98,"category":"บริการ","difficulty":"ปานกลาง","q":"ลูกค้าประจำมาครั้งที่ 3 แม่บ้านควรทำอย่างไรเพื่อให้ลูกค้าประทับใจ?","choices":["เรียกชื่อลูกค้า เช่น คุณ A สวัสดีค่ะ","ไม่ต้องทักทาย","ทักทายเหมือนลูกค้าใหม่","ขอเบอร์โทรมาบันทึก"],"answer":0,"explain":"ถ้ารู้จักชื่อลูกค้าประจำ การเรียกชื่อจะทำให้ลูกค้าประทับใจมาก เช่น คุณ A สวัสดีค่ะ"},{"id":99,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ลูกค้านำผ้ามาฝากซัก ในตะกร้ามีทั้งเสื้อยืดสีดำใหม่ ผ้าเช็ดตัวขาว และเสื้อบลาวส์ผ้าซาติน แม่บ้านควรทำอย่างไร?","choices":["ซักทั้งหมดน้ำเย็น","ซักทั้งหมดน้ำร้อน","แยกซัก: ผ้าขาวน้ำร้อน, เสื้อยืดสีดำน้ำเย็น (สีตกง่าย), เสื้อบลาวส์ผ้าซาตินน้ำเย็น/อุ่นน้อยและห้ามอบร้อน","ซักรวมกันด้วยน้ำอุ่น"],"answer":2,"explain":"ต้องแยก ผ้าขาวซักน้ำร้อนได้ ผ้าสีดำใหม่ใช้น้ำเย็น ผ้าซาติน(โพลีเอสเตอร์)น้ำเย็น/อุ่น ห้ามอบร้อน เพราะเส้นใยสังเคราะห์ละลายติดกัน"},{"id":100,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ลูกค้าบอกว่าผ้าเช็ดครัวของแม่ค้ามีคราบน้ำมันพืชผ่านการซักผงซักฟอกธรรมดา ต้องการอบให้แห้ง ควรทำอย่างไร?","choices":["อบเย็นพอ","ห้ามอบ ถึงซักผ่านแล้วถ้ายังเหลือคราบน้ำมัน รวมกับความร้อนจากการอบ จะติดไฟได้เอง","ใช้ผ้าผ่านได้","อบร้อนได้เลย"],"answer":1,"explain":"ผ้าเปื้อนน้ำมันทุกชนิดห้ามอบเด็ดขาด ไม่ใช่เพราะผ้าเสีย แต่เสี่ยงไฟไหม้ในเครื่อง แม้จะซักผ่านแล้วถ้ายังเหลือคราบรวมกับความร้อนอบจะติดไฟได้เอง สาเหตุไฟไหม้อันดับ 1"},{"id":101,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ลูกค้านำเสื้อสเวตเตอร์ขนสัตว์ Cashmere มา บอกใช้เครื่องอบร้อนเสมอที่บ้าน แม่บ้านควรทำอย่างไร?","choices":["อธิบายว่าน้ำร้อน/อบร้อนทำให้หดรุนแรง เส้นใยจับตัวเป็นก้อน เปลี่ยนรูปถาวร แนะนำซักน้ำเย็นและอบเย็น","ปฏิเสธบริการ","อบร้อนตามที่ลูกค้าต้องการ","ส่งซักแห้งภายนอก"],"answer":0,"explain":"ผ้าขนสัตว์ Wool/Cashmere ความร้อนทำให้หด 30-50% เส้นใยจับเป็นก้อน เปลี่ยนรูปถาวร ต้องแนะนำลูกค้าใช้น้ำเย็น/อบเย็นแม้ลูกค้าเคยทำผิดมาก่อน"},{"id":104,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ลูกค้านำเสื้อยืดสกรีนลายการ์ตูนใหม่ที่มีกากเพชรและเลื่อมประดับมา ตั้งใจอบ ควรเตือนอย่างไร?","choices":["อบเลย","อบไม่ได้ค่ะ ความร้อนละลายกาว เลื่อม/กากเพชรหลุด ติดในเครื่องและผ้าตัวอื่น แนะนำตากแห้งที่บ้าน","ใช้น้ำยาดับกลิ่นแทน","อบเย็นพอ"],"answer":1,"explain":"ผ้าที่มีกาว/เลื่อม/กากเพชร/สติกเกอร์รีด ห้ามอบ เพราะความร้อนละลายกาว เลื่อมและกากเพชรหลุด ติดอยู่ในเครื่องและผ้าตัวอื่น"},{"id":106,"category":"แนะนำผ้า","difficulty":"ยาก","q":"การซักน้ำร้อนเร่งการสลายตัวของสีย้อมทำให้ผ้าซีดเร็วกว่าปกติประมาณกี่เท่า?","choices":["5-10 เท่า","1 เท่า","ไม่ซีด","2-3 เท่า"],"answer":3,"explain":"น้ำร้อนเร่งการสลายตัวของสีย้อม ทำให้ผ้าซีดเร็วกว่าปกติ 2-3 เท่า"},{"id":107,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ลูกค้านำผ้าอ้อมผ้าและเสื้อเด็กอ่อนมา บอกอยากให้แห้งเร็วใช้อบร้อน ควรอธิบายอย่างไร?","choices":["อบร้อนได้สบาย","อบเย็นเท่านั้น","ผ้าทนได้แต่ความร้อนสูงทำให้เส้นใยแข็ง ระคายผิวเด็ก เสียคุณสมบัติการดูดซับ แนะนำอบอุ่นปานกลาง","ห้ามอบเด็ดขาด"],"answer":2,"explain":"ผ้าเด็กอ่อนและผ้าอ้อมผ้า แม้ผ้าจะทนได้ แต่ความร้อนสูงทำให้เส้นใยแข็ง ระคายผิวเด็ก เสียคุณสมบัติการดูดซับ"},{"id":108,"category":"แนะนำผ้า","difficulty":"ยาก","q":"คุณภาพและรูปแบบของรอยยับที่เกิดจากการซักน้ำร้อนคือ?","choices":["รอยยับฝังลึก รีดออกยาก","รอยยับน้อยกว่าปกติ","ไม่มีรอยยับ","รีดออกง่าย"],"answer":0,"explain":"น้ำร้อนรวมกับแรงปั่นทำให้รอยยับฝังลึก รีดออกยาก"},{"id":109,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ผ้าใดที่ซักน้ำร้อนแล้วทำให้คอเสื้อและทรงปกเสียถาวร?","choices":["ผ้าฝ้ายเก่า","เสื้อโปโล/เสื้อมีปก ที่น้ำร้อนทำให้ทรงปกหลุด คอเสื้อเสียทรง","ผ้าไหมเท่านั้น","ผ้าเด็กเท่านั้น"],"answer":1,"explain":"น้ำร้อนทำให้ปกเสื้อและคอเสื้อเสียรูป ทรงปกหลุด คอเสื้อเสียทรง"},{"id":111,"category":"บริการ","difficulty":"ยาก","q":"จุดที่ลูกค้ารับฝาก 'ไม่ชอบ' ที่ทำให้ลูกค้าหายไปเลย คือ?","choices":["ส่งคืนเร็วเกิน","พับผ้าธรรมดา","ราคาแพงไป","ผ้าหายแม้แต่ตัวเดียว"],"answer":3,"explain":"สิ่งที่ต้องระวัง: ผ้าหาย แม้แต่ตัวเดียว ลูกค้าจะหายไปเลย"},{"id":112,"category":"บริการ","difficulty":"ยาก","q":"ลูกค้ารับฝากชอบสิ่งใดที่ทำให้รู้สึกจ่ายเงินคุ้ม?","choices":["แถมถุงผ้า","พับผ้าสวยงามเป็นระเบียบ","แถมน้ำยาปรับผ้านุ่ม","ส่วนลด"],"answer":1,"explain":"สิ่งที่ทำให้ลูกค้าประทับใจ: พับผ้าสวยงามเป็นระเบียบ ลูกค้าจะรู้สึกว่าจ่ายเงินคุ้ม"},{"id":113,"category":"บริการ","difficulty":"ยาก","q":"แม่บ้านเจอเหรียญในกระเป๋ากางเกงลูกค้ารับฝาก ควรทำอย่างไร?","choices":["ใช้แทนค่าบริการ","คืนทุกบาท แม้แต่ 1 บาท","เก็บเข้ากระเป๋าตัวเอง","ทิ้ง"],"answer":1,"explain":"ใส่ใจในรายละเอียดเล็กๆ: เจอเหรียญในกระเป๋ากางเกง คืนทุกบาท แม้แต่ 1 บาท"},{"id":114,"category":"บริการ","difficulty":"ยาก","q":"ลูกค้ารับฝากต้องการรับผ้าตอน 19:00 แต่แม่บ้านพบว่าจะเสร็จ 19:30 ควรทำอย่างไร?","choices":["แจ้งล่วงหน้าก่อนถึงเวลานัด","ส่งผ้าที่ยังไม่แห้ง","ปฏิเสธลูกค้า","ส่งช้าโดยไม่บอก"],"answer":0,"explain":"สิ่งที่ต้องระวัง: ส่งคืนช้ากว่ากำหนด โดยไม่แจ้งล่วงหน้า ทำให้ลูกค้าหายไป ต้องแจ้งล่วงหน้าเสมอ"},{"id":115,"category":"บริการ","difficulty":"ยาก","q":"แม่บ้านที่ Teddy 1 จะรับฝากผ้าให้ลูกค้านักศึกษา ลูกค้าบอกว่าผ้าตัวหนึ่งเป็นเสื้อผ้าไหมที่แม่ให้ ต้องระวังเป็นพิเศษ ควรทำอย่างไรอันดับแรก?","choices":["ปฏิเสธรับ","ซักน้ำอุ่น อบอุ่น","แยกออกจากผ้าอื่น ห้ามใช้น้ำร้อน ห้ามอบร้อน อาจแนะนำซักแห้ง","ซักรวมกับผ้าอื่นด้วยน้ำเย็น"],"answer":2,"explain":"ผ้าไหมห้ามน้ำร้อน (ทำลายเส้นใยโปรตีน เปลี่ยนสี เสียมัน) ห้ามอบร้อน (เปราะ เปลี่ยนสี หดเสียทรง) ควรแยกและใช้น้ำเย็น/อบเย็น หรือแนะนำซักแห้ง"},{"id":116,"category":"บริการ","difficulty":"ยาก","q":"ในการรับฝากที่ Teddy (ฟรี) ลูกค้าทุกครั้งจะได้รับการพับลงถุงเรียบร้อย ทำไมเรื่องนี้สำคัญแม้บริการพับฟรี?","choices":["เป็นกฎหมาย","ลูกค้ารู้สึกว่าจ่ายเงินคุ้ม (ค่าซัก/อบ) และสร้างความผูกพัน","แม่บ้านได้ค่าจ้างเพิ่ม","ลูกค้าจ่ายค่าพับ"],"answer":1,"explain":"การพับสวยงามและใส่ถุงเรียบร้อยเป็นมาตรฐานบริการรับฝาก ทำให้ลูกค้าประทับใจและสร้างความผูกพัน แม้ฟรีก็ต้องคุณภาพสม่ำเสมอ"},{"id":117,"category":"แนะนำผ้า","difficulty":"ยาก","q":"ลูกค้าบอกว่ามีผ้าคลุมโซฟา ติดป้าย Dry Clean Only มาฝากซัก ต้องการให้ซักน้ำเย็น ควรทำอย่างไร?","choices":["ซักให้ตามที่ลูกค้าขอ","ปฏิเสธการซัก แนะนำส่งซักแห้งร้านอื่น","ซักน้ำอุ่น","ใช้น้ำสบู่อ่อนซักด้วยมือ"],"answer":1,"explain":"ผ้าติดป้าย Dry Clean Only ห้ามซักน้ำเลย ต้องบอกลูกค้าให้ส่งซักแห้งที่ร้านอื่น แม้ลูกค้าจะขอให้ซัก"},{"id":118,"category":"บริการ","difficulty":"ยาก","q":"ลูกค้านำผ้ามาฝาก แม่บ้านสังเกตว่ามีรอยขาดและรอยเปื้อนหนักก่อนซัก ควรทำอย่างไรเพื่อกันปัญหาในอนาคต?","choices":["ปฏิเสธรับ","ซักไปเลย ไม่บอก","คิดเงินเพิ่ม","แจ้งลูกค้าและบันทึกสภาพก่อนซัก (ถ่ายภาพ/วิดีโอ)"],"answer":3,"explain":"ตามขั้นตอน ตรวจนับและบันทึกจำนวนผ้าโดยประมาณต่อหน้าลูกค้า (หรือบันทึกภาพและวิดีโอ) เพื่อเป็นหลักฐานสภาพผ้าก่อนซัก"},{"id":119,"category":"บริการ","difficulty":"ยาก","q":"ลูกค้าฝากผ้า 30 ตัว ตอนรับเปิดดูผ้าหายไป 1 ตัว ลูกค้ายังอยู่ในร้าน ควรทำอย่างไรเป็นอันดับแรก?","choices":["ปล่อยให้ลูกค้าจัดการเอง","ขอโทษและขอเวลาตรวจสอบในเครื่องและตามหาผ้าตอนนี้ ถ้าดูกล้องแล้วเป็นความผิดของเรา ทางร้านจะรับผิดชอบ","ดุลูกค้าว่านับผิด","ปฏิเสธว่าไม่หาย"],"answer":1,"explain":"กรณีผ้าหาย: ขอโทษมากๆ ขอเวลาตรวจสอบในเครื่องและตามหาตอนนี้ ถ้าดูกล้องแล้วเป็นความผิดของเราจริงๆ ทางร้านจะรับผิดชอบ"},{"id":120,"category":"แนะนำผ้า","difficulty":"ยาก","q":"แม่บ้านพบผ้ายีนส์ Raw Denim สีเข้มที่ยังไม่เคยซักของลูกค้าในตะกร้ารับฝาก ลูกค้าบอกใช้น้ำอุ่นได้ จะอบอุ่นต่อ ปลอดภัยไหม?","choices":["ไม่ปลอดภัย น้ำอุ่นสีอาจตก ความร้อนทำให้สีตกใส่ผ้าตัวอื่น แนะนำใช้น้ำเย็นและไม่อบร้อน","น้ำอุ่นได้ แต่ห้ามอบเลย","ปลอดภัย ทำตามที่ลูกค้าบอก","ใช้น้ำเย็น อบร้อนเต็มที่"],"answer":0,"explain":"ยีนส์ใหม่/Raw Denim สีเข้ม น้ำร้อนสีตกหนักหด 5-10% ความร้อนสูงทำให้สีตก สีซีด เนื้อผ้าหด 3-5% ควรน้ำเย็น/อุ่นน้อย และไม่อบร้อน"},{"id":121,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ผ้าใดที่ซักน้ำร้อนแล้วยางยืดจะเสื่อม หลวม ใส่ไม่กระชับ?","choices":["ผ้าไหม","ผ้าฝ้าย","ผ้าที่มียางยืด: ชุดกีฬา เลกกิ้ง สปอร์ตบรา ชุดว่ายน้ำ ชุดชั้นใน ถุงน่อง","ผ้าเช็ดตัว"],"answer":2,"explain":"ผ้าที่มียางยืดน้ำร้อนทำให้ยางยืดเสื่อมจากความร้อน หลวม ยืด ใส่ไม่กระชับ เสียทรง"},{"id":122,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ผ้าโพลีเอสเตอร์/ไนลอน/ใยสังเคราะห์ ซักน้ำร้อนแล้วเกิดอะไร?","choices":["สีเข้มขึ้น","นุ่มขึ้น","ย่นถาวร เกิดรอยพับที่แก้ไม่ได้ บางชนิดอาจละลายเสียรูป","แห้งเร็วขึ้น"],"answer":2,"explain":"ใยสังเคราะห์อ่อนไหวต่อความร้อน ผ้าจะย่นถาวร เกิดรอยพับที่แก้ไม่ได้ บางชนิดอาจละลายเสียรูป"},{"id":124,"category":"บริการ","difficulty":"ปานกลาง","q":"ขั้นตอนการแนะนำลูกค้าใหม่ ขั้นตอนแรกที่ต้องถามคือ?","choices":["ที่อยู่ลูกค้า","ลูกค้ามีบัตรสมาชิกไหม","ปริมาณผ้าที่จะซัก เช่น วันนี้ผ้าเยอะไหมคะ ประมาณกี่กิโลคะ","ราคาที่ต้องการ"],"answer":2,"explain":"ขั้นตอนแรก: ถามปริมาณผ้าที่จะซัก เช่น วันนี้ผ้าเยอะไหมคะ ประมาณกี่กิโลคะ"},{"id":126,"category":"บริการ","difficulty":"ปานกลาง","q":"ก่อนแนะนำอุณหภูมิน้ำ ขั้นตอนใดควรทำก่อน?","choices":["เปิดเครื่อง","พาลูกค้านั่งรอ","ถามประเภทผ้า เช่น ผ้าสีหรือผ้าขาว มีผ้าเด็กหรือเปล่า","ขอเงินก่อน"],"answer":2,"explain":"ขั้นตอนการแนะนำ: ถามประเภทผ้า เช่น ผ้าสีหรือผ้าขาวคะ มีผ้าเด็กหรือเปล่า แล้วค่อยแนะนำอุณหภูมิ"},{"id":127,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ผ้าสีเข้ม/ผ้าสีสด ที่อันตรายที่สุดเมื่อซักน้ำร้อนคือ?","choices":["สีตกไปติดผ้าตัวอื่นในเครื่องเดียวกัน เช่น ผ้าขาวกลายเป็นชมพู","กลิ่นไม่หอม","ทำให้ผ้าหด","ทำให้ผ้าแข็ง"],"answer":0,"explain":"น้ำร้อนทำให้สีตกอย่างรุนแรง สีย้อมจะหลุดออกมาทำให้ผ้าซีด และที่อันตรายที่สุดคือสีตกไปติดผ้าตัวอื่นในเครื่องเดียวกัน เช่น ผ้าขาวกลายเป็นชมพู"},{"id":128,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"การซักน้ำร้อนทำให้ผ้าเปื่อยเร็วและขาดง่ายเพราะอะไร?","choices":["ใช้ผงซักฟอกแรง","เส้นใยถูกทำลาย ผ้าบาง อายุการใช้งานสั้นลง","น้ำร้อนซัก","น้ำกระด้าง"],"answer":1,"explain":"น้ำร้อนทำให้ผ้าเปื่อยเร็ว เส้นใยถูกทำลาย ผ้าบาง ขาดง่าย อายุการใช้งานสั้นลง"},{"id":130,"category":"บริการ","difficulty":"ง่าย","q":"การยิ้มและทักทายลูกค้าควรเป็นอย่างไร?","choices":["ยิ้มจริงจากใจ ลูกค้าสัมผัสได้","ยิ้มกว้างมาก","ยิ้มแค่มุมปาก","ไม่ต้องยิ้ม"],"answer":0,"explain":"เคล็ดลับการทักทาย: ยิ้มจริงจากใจ ลูกค้าสัมผัสได้"},{"id":131,"category":"บริการ","difficulty":"ง่าย","q":"น้ำเสียงในการทักทายควรเป็นอย่างไร?","choices":["ดังมากเพื่อให้ลูกค้าชัดเจน","เบามาก ฟังไม่ค่อยชัด","นิ่งเรียบ","สดใส แต่ไม่ดังเกินไป"],"answer":3,"explain":"ใช้น้ำเสียงสดใส แต่ไม่ดังเกินไป"},{"id":132,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าใหม่เดินดูสับสน ก่อนลูกค้าจะถาม แม่บ้านควรทำอะไร?","choices":["รอลูกค้าถามก่อน","พูดดังให้ลูกค้าได้ยินจากที่ไกล","เข้าไปแนะนำก่อน เช่น ใช้บริการครั้งแรกหรือเปล่าคะ","ไม่สนใจ"],"answer":2,"explain":"ลูกค้าใหม่ดูสับสน เข้าไปแนะนำก่อนที่ลูกค้าจะถาม โดยพูดว่า ใช้บริการครั้งแรกหรือเปล่าคะ ให้แนะนำการใช้เครื่องไหมคะ"},{"id":133,"category":"บริการ","difficulty":"ง่าย","q":"ลูกค้าถามเรื่องราคา บทพูดมาตรฐานเริ่มอย่างไร?","choices":["ดูป้ายราคาเอง","แล้วแต่เครื่องค่ะ","ราคาเปลี่ยนตลอด","ขนาด.. กิโล ... บาทค่ะ ส่วนการอบเริ่มที่.. บาท ขึ้นอยู่กับเวลาที่เลือกค่ะ"],"answer":3,"explain":"บทพูดมาตรฐาน: ขนาด.. กิโล... บาทค่ะ ส่วนการอบเริ่มที่.. บาท ขึ้นอยู่กับเวลาที่เลือกค่ะ (ปรับตามราคาจริงของแต่ละสาขา)"},{"id":134,"category":"บริการ","difficulty":"ปานกลาง","q":"แม่บ้านพบลูกค้าที่ Otteri กำลังจะใส่ผ้าเด็กเปื้อนนมในเครื่องน้ำร้อน ควรพูดอย่างไรเป็นอันดับแรก?","choices":["ปฏิเสธบริการ","ขอแนะนำใช้น้ำเย็นซักก่อน เพราะคราบนมโปรตีนจะ สุก ติดผ้าถาวร แล้วค่อยซักรอบสองได้ค่ะ","ใช้ถังเปลี่ยน","น้ำร้อนได้เลยค่ะ"],"answer":1,"explain":"คราบสด เช่น เลือด ไข่ นม โปรตีน จะ สุก ติดเส้นใยถาวรเมื่อโดนน้ำร้อน ต้องใช้น้ำเย็นซักก่อนเพื่อชะคราบ แล้วค่อยซักรอบสองด้วยน้ำอุ่น"},{"id":137,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ผ้าใดที่ซักน้ำร้อนแล้วเส้นใยโปรตีนเสีย ผ้าจะแข็ง เปลี่ยนสี เสียมัน?","choices":["ผ้ายีนส์","ผ้าไหม","ผ้าใยสังเคราะห์","ผ้าฝ้าย"],"answer":1,"explain":"ผ้าไหม น้ำร้อนทำลายเส้นใยโปรตีนของไหม ผ้าจะแข็ง เปลี่ยนสี เสียมัน ไม่นุ่มลื่นอีก"},{"id":138,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ผ้าใดที่ซักน้ำร้อนแล้วลายสกรีนแตก ลอก หลุด ซีด?","choices":["ผ้าเช็ดตัว","ผ้าปูที่นอน","เสื้อยืดสกรีน เสื้อทีม เสื้อโลโก้ เสื้อแฟนคลับ","ผ้าฝ้ายสีขาว"],"answer":2,"explain":"ผ้าที่มีลวดลายพิมพ์/สกรีน น้ำร้อนรวมกับผงซักฟอกที่ละลายแรง ทำให้ลายสกรีนแตก ลอก หลุด ซีด ลายรีดติดจะหลุดออกมา"},{"id":139,"category":"แนะนำผ้า","difficulty":"ยาก","q":"แม่บ้านที่ Teddy 2 รับฝากผ้าจากนักศึกษา 1 ถุง พบเสื้อยืดแฟนคลับศิลปินสกรีนใหม่ปนกับชุดกีฬาเลกกิ้ง การแนะนำที่ดีที่สุดคือ?","choices":["ซักรวมกันด้วยน้ำร้อนอบร้อน","ใช้น้ำร้อน อบเย็น","แยกออกจากผ้าอื่น ใช้น้ำเย็น/อุ่นน้อย ห้ามอบร้อน เพราะลายสกรีนแตกและยางยืดเสื่อม","ปฏิเสธทุกตัว"],"answer":2,"explain":"ทั้งเสื้อสกรีน (ลายแตก ลอก หลุด) และเลกกิ้ง (ยางยืดเสื่อม) ห้ามน้ำร้อนและห้ามอบร้อน ควรน้ำเย็น/อุ่นน้อย และอบเย็น"},{"id":140,"category":"แนะนำผ้า","difficulty":"ปานกลาง","q":"ลูกค้านำเสื้อชั้นในที่มีโครงเหล็กมาซัก แม่บ้านควรเตือนเรื่องอะไรเป็นพิเศษ?","choices":["กินไฟน้อย","น้ำร้อน/อบร้อนทำให้โครงพลาสติกบิดเบี้ยว ฟองน้ำเสียรูป ยางยืดเสื่อม","จะลอย","ทำให้สะอาดมาก"],"answer":1,"explain":"ผ้าที่มีโครงเหล็ก/พลาสติก น้ำร้อน/อบร้อนทำให้โครงบิดเบี้ยว ฟองน้ำเสียรูป ยางยืดเสื่อม"},{"id":142,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"หลักการพื้นฐานสร้างความประทับใจข้อแรกคือ?","choices":["ทักทายเสียงดัง","จำชื่อและจำหน้าลูกค้าประจำ","ลดราคา","ขายของแถม"],"answer":1,"explain":"หลักการพื้นฐาน 4 ข้อข้อแรก: จำชื่อและจำหน้าลูกค้าประจำ ไม่มีอะไรทำให้ลูกค้ารู้สึกพิเศษเท่ากับการที่คุณจำเขาได้"},{"id":143,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"แม่บ้านควรทำสมุดเล็กๆ จดอะไรเกี่ยวกับลูกค้าประจำ?","choices":["เงินเดือน","เลขบัตรประชาชน","ชื่อ ลักษณะ ความชอบ เครื่องที่ใช้ประจำ","ที่อยู่"],"answer":2,"explain":"ทำสมุดเล็กๆ จดชื่อ ลักษณะ และความชอบของลูกค้าประจำ เช่น เครื่องที่ชอบใช้ อุณหภูมิที่ใช้ประจำ"},{"id":144,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"การทำให้ลูกค้ารู้สึกว่า 'ที่นี่คือบ้าน' ทำอย่างไร?","choices":["ทักทายเหมือนเพื่อน ไม่ใช่เหมือนพนักงานในห้าง","พูดเสียงเบามาก","ขายของถูกๆ","แต่งตัวเหมือนกัน"],"answer":0,"explain":"ทำให้รู้สึกว่าที่นี่คือบ้าน: ทักทายเหมือนเพื่อน ไม่ใช่เหมือนพนักงานในห้าง"},{"id":145,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"ลูกค้ามาตอนฝนตก แม่บ้านควรทำอะไร?","choices":["ปิดประตูใส่","ปล่อยลูกค้าเปียก","ขอเงินค่าหลบฝน","เสนอผ้าเช็ดร่ม"],"answer":3,"explain":"ใส่ใจในรายละเอียด: ลูกค้ามาตอนฝนตก เสนอผ้าเช็ดร่ม"},{"id":146,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"ลูกค้ามากับเด็กเล็ก แม่บ้านควรทำอะไร?","choices":["ให้ของเล่นหรือพื้นที่ปลอดภัย","ดุเด็ก","คิดเงินเพิ่ม","ห้ามเข้าร้าน"],"answer":0,"explain":"ใส่ใจในรายละเอียด: ลูกค้ามากับเด็กเล็ก ให้ของเล่นหรือพื้นที่ปลอดภัย"},{"id":147,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"แม่บ้านเห็นลูกค้าใหม่ดูสับสน ควรทำอะไรก่อนลูกค้าจะถาม?","choices":["รอลูกค้าถามก่อนเสมอ","หลบเลี่ยง","เข้าไปแนะนำก่อน","ไปทำงานต่อ"],"answer":2,"explain":"แก้ปัญหาให้ลูกค้าก่อนที่ลูกค้าจะร้องขอ: ลูกค้ามือใหม่ดูสับสน เข้าไปแนะนำก่อนที่ลูกค้าจะถาม"},{"id":148,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"คำพูดที่ใช้ตอนลูกค้าจะกลับ?","choices":["ขอบคุณมากนะคะ มาใหม่นะคะ","กลับเร็วมาเร็วนะ","แล้วเจอกันค่ะ","บายค่ะ"],"answer":0,"explain":"คำพูดที่สร้างความประทับใจตอนลูกค้าจะกลับ: ขอบคุณมากนะคะ มาใหม่นะคะ"},{"id":149,"category":"สร้างความประทับใจ","difficulty":"ง่าย","q":"คำพูดที่แสดงความใส่ใจตอนฝนตก?","choices":["ฝนเยอะนะ","ฝนจะตกอีก","ฝนตกอยู่ ระวังลื่นนะคะ","ฝนตก ไปเร็วๆ"],"answer":2,"explain":"คำพูดที่แสดงความใส่ใจ: ฝนตกอยู่ ระวังลื่นนะคะ"},{"id":151,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ลูกค้าวัยทำงานที่ Otteri มีพฤติกรรมแบบใด ควรเสริมบริการใด?","choices":["เร่งรีบ ไม่อยากเสียเวลา เสนอบริการรับฝาก","มีเวลาว่างมาก เสนอบริการพิเศษ","ชอบของแถม","อยากนั่งคุยนาน"],"answer":0,"explain":"กลุ่มวัยทำงาน Otteri: เน้นความรวดเร็ว เพราะเขาเร่งรีบ ไม่อยากเสียเวลา เสนอบริการรับฝาก เพราะวัยทำงานยอมจ่ายเพื่อความสะดวก"},{"id":152,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ลูกค้านักศึกษาที่ Teddy 1, 2 ควรเสริมบริการใด?","choices":["ขายเสื้อผ้า","บริการ Delivery เพราะนักศึกษาส่วนใหญ่ไม่มีรถ","บริการรับฝากแพง","ขายของกินเสริม"],"answer":1,"explain":"กลุ่มนักศึกษา Teddy 1, 2: เสนอบริการ Delivery เพราะนักศึกษาส่วนใหญ่ไม่มีรถ"},{"id":153,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ช่วงสอบของนักศึกษา Teddy 1, 2 แม่บ้านควรเตรียมอะไรพิเศษ?","choices":["ลดราคา","เพิ่มราคา","ของเล็กๆ น้อยๆ แจก เช่น ขนม ลูกอม (ทางร้านจะเตรียมให้)","ปิดร้านเร็วขึ้น"],"answer":2,"explain":"กลุ่มนักศึกษา ช่วงสอบ มีของเล็กๆ น้อยๆ แจก เช่น ขนม ลูกอม (ทางร้านจะเตรียมให้)"},{"id":154,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"แม่บ้านเห็นเครื่องลูกค้าเสร็จแล้ว ลูกค้านั่งอยู่ในร้าน ควรทำอย่างไร?","choices":["รอลูกค้ามาดูเอง","กดปุ่มเองให้","เข้าไปบอกว่า คุณ A คะ เครื่องเสร็จแล้วนะคะ","แจ้งทาง Line"],"answer":2,"explain":"แก้ปัญหาให้ลูกค้าก่อนที่ลูกค้าจะร้องขอ: เห็นเครื่องลูกค้าเสร็จแล้ว เข้าไปบอกว่า คุณ A คะ เครื่องเสร็จแล้วนะคะ"},{"id":155,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ลูกค้ามาถึงตอนเครื่องเต็ม แม่บ้านควรทำอย่างไรเชิงรุก?","choices":["รีบหาทางช่วย เช่น เสนอนำผ้าจากเครื่องที่ลูกค้าคนก่อนทิ้งไว้ออกมาให้ก่อน (ถ้ามี)","ปฏิเสธลูกค้า","ให้ลูกค้านั่งรอเฉยๆ","แนะนำไปร้านอื่น"],"answer":0,"explain":"แก้ปัญหาเชิงรุก: ลูกค้ามาถึงตอนเครื่องเต็ม รีบหาทางช่วย เช่น เสนอนำผ้าจากเครื่องที่ลูกค้าคนก่อนทิ้งไว้ออกมาให้ก่อน (ถ้ามี)"},{"id":156,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ลูกค้าวันนี้ผ้าเยอะ ดูเหนื่อย คำพูดที่แสดงความเห็นใจคือ?","choices":["แม่บ้านก็เหนื่อย","พักไม่ได้ คนรอ","วันนี้ผ้าเยอะนะคะ ดูเหนื่อยจัง พักก่อนค่ะ","รีบหน่อยค่ะ"],"answer":2,"explain":"คำพูดแสดงความเห็นใจ: วันนี้ผ้าเยอะนะคะ ดูเหนื่อยจัง พักก่อนค่ะ"},{"id":157,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"การถามไถ่ความเป็นอยู่ของลูกค้าประจำ ตัวอย่างคือ?","choices":["เงินเดือนเท่าไหร่","มีแฟนหรือยัง","ทำงานที่ไหน","วันนี้เหนื่อยไหมคะ ฝนตกแถวบ้านไหมคะ"],"answer":3,"explain":"ถามไถ่ความเป็นอยู่ เช่น วันนี้เหนื่อยไหมคะ ฝนตกแถวบ้านไหมคะ"},{"id":158,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ลูกค้าที่ร้องเรียนแล้วได้รับการแก้ไขดี จะเป็นอย่างไร?","choices":["หายไป","เฉยๆ","กลับมาตำหนิอีก","กลายเป็นลูกค้าที่ภักดีที่สุด เพราะรู้ว่าร้านนี้รับผิดชอบ และจะแนะนำเพื่อนต่อ"],"answer":3,"explain":"ลูกค้าที่ร้องเรียนแล้วได้รับการแก้ไขดี จะกลายเป็นลูกค้าที่ภักดีที่สุด เพราะเขารู้ว่าร้านนี้รับผิดชอบ และจะแนะนำเพื่อนต่อ"},{"id":164,"category":"สร้างความประทับใจ","difficulty":"ปานกลาง","q":"ลูกค้าบ่นว่าผ้าหด คำพูดที่ 'ไม่ควร' พูดคือ?","choices":["ขอดูผ้าหน่อยได้ไหมคะ","ก็คุณเลือกอุณหภูมิเองนี่ ไม่ได้บอกผมว่าเป็นผ้าไหม","เดี๋ยวจะลองถามเจ้านายให้นะคะ","ขอโทษมากๆ เลยค่ะ ที่ผ้าเสียหาย"],"answer":1,"explain":"ตัวอย่างคำพูดที่ไม่ควรพูด: ก็คุณเลือกอุณหภูมิเองนี่ ไม่ได้บอกผมว่าเป็นผ้าไหม (เป็นการโบ้ยความผิด)"},{"id":165,"category":"สร้างความประทับใจ","difficulty":"ยาก","q":"ลูกค้าโกรธว่าเครื่องกินเหรียญ คำพูดที่ 'ควร' พูดคือ?","choices":["ไม่รู้ครับ ผมไม่ได้ทำเครื่อง","ลูกค้าหยอดผิดเอง","ต้องรอเจ้าของร้าน","ขอโทษด้วยนะคะ ขอเช็คเครื่องสักครู่ ถ้าเครื่องผิดจริง คืนเหรียญให้ทันทีค่ะ"],"answer":3,"explain":"ตัวอย่างคำพูดที่ควรพูด: ขอโทษด้วยนะคะ ขอเช็คเครื่องสักครู่ ถ้าเครื่องผิดจริง คืนเหรียญให้ทันทีค่ะ"},{"id":166,"category":"สร้างความประทับใจ","difficulty":"ยาก","q":"ลูกค้าประจำ คุณ A มาถึงร้านในวันที่ฝนตกหนัก เปียกตัว แม่บ้านควรทำอะไรเป็นชุดที่ดีที่สุด?","choices":["ทักทายโดยใช้ชื่อ คุณ A เสนอผ้าเช็ดร่ม/ผ้าเช็ดตัว และพูดว่า ฝนตกอยู่ ระวังลื่นนะคะ","ทักทายปกติ พูดคุยปกติ","ขอเงินเพิ่ม","ปฏิเสธให้บริการ"],"answer":0,"explain":"ผสมหลักหลายเรื่อง: เรียกชื่อลูกค้าประจำ เสนอผ้าเช็ดร่มในวันฝนตก พูดเตือนระวังลื่น ทำให้ลูกค้าประทับใจ"},{"id":167,"category":"สร้างความประทับใจ","difficulty":"ยาก","q":"แม่บ้านที่ Teddy 2 พบนักศึกษาคนเดิมมาเป็นครั้งที่ 4 ใส่เลกกิ้งและเสื้อสกรีนทุกครั้ง การจดและจำสิ่งใดทำให้ลูกค้าประทับใจ?","choices":["ไม่ต้องจำอะไร","จดอายุ","จดเลขนักศึกษา","จำชื่อและความชอบเรื่องอบเย็น (เพราะมีเลกกิ้ง/สกรีน) เพื่อแนะนำได้ทันที"],"answer":3,"explain":"จำชื่อ ลักษณะ และความชอบของลูกค้าประจำ เช่น เครื่องที่ใช้ อุณหภูมิที่ใช้ประจำ ในกรณีนี้ลูกค้าใส่เลกกิ้ง+สกรีนต้องอบเย็น แม่บ้านจำได้จะแนะนำได้ทันที"},{"id":169,"category":"สร้างความประทับใจ","difficulty":"ยาก","q":"แม่บ้านที่ Teddy 1 พบลูกค้าประจำมาในช่วงสอบดูเครียดมาก ควรทำอย่างไร?","choices":["ไม่ทักทาย","ทักทายเหมือนเดิม","ทักทายด้วยชื่อ ใช้ภาษาเป็นกันเอง พร้อมเสนอขนม/ลูกอมที่ทางร้านเตรียมไว้ และถามไถ่ความเป็นอยู่","ดุให้ตั้งใจเรียน"],"answer":2,"explain":"กลุ่มนักศึกษา: เป็นกันเอง จำชื่อ ช่วงสอบมีของเล็กๆ น้อยๆ แจก ถามไถ่ความเป็นอยู่ ทำให้ลูกค้าประทับใจ"},{"id":170,"category":"สร้างความประทับใจ","difficulty":"ยาก","q":"ลูกค้านำสุนัขเข้ามาที่ร้าน Otteri ไม่มีลูกค้าคนอื่นในร้าน แม่บ้านสามารถสร้างความประทับใจได้อย่างไร?","choices":["แอบถ่ายรูปลง social","ไล่ลูกค้าและสุนัขออก","คิดเงินเพิ่ม","มีน้ำเปล่าให้สุนัข (ถ้าทำได้และไม่มีคนอื่นอยู่)"],"answer":3,"explain":"ใส่ใจในรายละเอียด: ลูกค้ามากับสุนัข มีน้ำเปล่าให้สุนัข (ถ้าทำได้และไม่มีคนอื่นอยู่)"},{"id":171,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"หลักการพื้นฐานข้อแรกในการจัดการสถานการณ์ยากคือ?","choices":["ปกป้องลูกค้าจริงเป็นอันดับแรก ลูกค้าที่จ่ายเงินต้องได้รับประสบการณ์ที่ดี","ไล่คนแปลกหน้าออกทันที","ใช้กำลังเสมอ","โทรตำรวจทันที"],"answer":0,"explain":"หลักการพื้นฐาน: ปกป้องลูกค้าจริงเป็นอันดับแรก ลูกค้าที่จ่ายเงินต้องได้รับประสบการณ์ที่ดี"},{"id":172,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"กรณีคนเมาหรือมีอาการทางจิต แม่บ้านควรทำอย่างไร?","choices":["ไม่เผชิญหน้าโดยลำพัง พี่จะเรียกตำรวจ ห้ามเข้าใกล้","ใช้กำลังไล่","ตะโกนใส่","จัดการเอง"],"answer":0,"explain":"คนเมาหรือมีอาการทางจิต: ไม่เผชิญหน้าโดยลำพัง พี่จะเรียกตำรวจ ห้ามเข้าใกล้ ห้ามจัดการเอง"},{"id":173,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"กรณีคนนั่งเล่นชาร์จมือถือฟรี ทำอย่างไร?","choices":["ดึงปลั๊กออกเอง","ทักทายถามว่าจะใช้บริการไหม ถ้าไม่ใช้ ให้แจ้งนโยบายร้านอย่างสุภาพ","โทรตำรวจ","ตะโกนไล่"],"answer":1,"explain":"คนนั่งเล่นชาร์จมือถือฟรี: ทักทายถามว่าจะใช้บริการไหม ถ้าไม่ใช้ แจ้งนโยบายร้านอย่างสุภาพ ห้ามไล่ก้าวร้าว ห้ามดึงปลั๊กออกเอง"},{"id":174,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"คนไร้บ้านนอนในร้าน ขั้นตอนแรกคือ?","choices":["ใช้กำลังลาก","ตะโกน","ปลุกอย่างนุ่มนวล แจ้งว่าไม่ใช่ที่พัก","ใช้น้ำสาด"],"answer":2,"explain":"คนไร้บ้านนอนในร้าน: ปลุกอย่างนุ่มนวล แจ้งว่าไม่ใช่ที่พัก ถ้าไม่ออก โทรแจ้งเจ้าของร้าน ห้ามตะโกน ห้ามใช้น้ำสาด ห้ามใช้กำลัง"},{"id":175,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"กลุ่มเยาวชนนั่งคุยเสียงดัง ไม่ใช้บริการ ทำอย่างไร?","choices":["ไล่ออกแรงๆ","ขอความร่วมมือลดเสียง ถ้าไม่ใช้บริการ ขอให้ออก","ทะเลาะ","ขู่"],"answer":1,"explain":"กลุ่มเยาวชนนั่งคุยเสียงดัง: ขอความร่วมมือลดเสียง ถ้าไม่ใช้บริการ ขอให้ออก ห้ามทะเลาะ ห้ามขู่"},{"id":176,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"คนขอเงินจากลูกค้าในร้าน ทำอย่างไร?","choices":["ให้เงินเอง","ปล่อยให้รบกวนลูกค้า","เข้าไปขอความกรุณาให้ออกจากร้าน อย่ารบกวนลูกค้า","โทรตำรวจ"],"answer":2,"explain":"คนขอเงินจากลูกค้า: เข้าไปขอความกรุณาให้ออกจากร้าน อย่ารบกวนลูกค้า"},{"id":177,"category":"สถานการณ์ยาก","difficulty":"ง่าย","q":"คนไร้บ้านเข้ามาหลบฝน ฝนตกหนักและร้านโล่ง ควรทำอย่างไร?","choices":["ไล่กลางฝนทันที","ดูถูก","โทรตำรวจ","ใช้วิจารณญาณ (อาจให้หลบ)"],"answer":3,"explain":"คนไร้บ้านหลบฝน ถ้าฝนตกหนักและร้านโล่ง ใช้วิจารณญาณ ห้ามดูถูก ห้ามไล่กลางฝน"},{"id":178,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"เครื่องอบมีกลิ่นไหม้หรือมีควัน ทำอย่างไรเป็นอันดับแรก?","choices":["เปิดประตูทันทีระบายควัน","ปิดเครื่องและถอดปลั๊กทันที","เทน้ำเข้าไปดับ","วิ่งหนี"],"answer":1,"explain":"เครื่องอบมีกลิ่นไหม้/ควัน: ปิดเครื่องและถอดปลั๊กทันที ห้ามเปิดประตูทันที (อากาศเข้าจะลุกไหม้แรง) รอ 30 นาที จนเย็น เตรียมถังดับเพลิง โทรแจ้งเจ้าของร้าน"},{"id":179,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"เครื่องอบมีกลิ่นไหม้ ห้ามทำอะไร?","choices":["ปิดเครื่อง","ถอดปลั๊ก","แจ้งเจ้าของร้าน","เปิดประตูทันที"],"answer":3,"explain":"ห้ามเปิดประตูทันที เพราะอากาศจะเข้าทำให้ลุกไหม้แรงขึ้น ต้องรอประมาณ 30 นาที จนเย็นแล้วค่อยเปิด"},{"id":180,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"เบอร์รถพยาบาลฉุกเฉินคือ?","choices":["191","1129","199","1669"],"answer":3,"explain":"เบอร์รถพยาบาล (ฉุกเฉิน): 1669"},{"id":181,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"เบอร์ดับเพลิงคือ?","choices":["191","1669","1129","199"],"answer":3,"explain":"เบอร์ดับเพลิง: 199"},{"id":182,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"กรณีน้ำรั่วจากเครื่อง ขั้นตอนแรกคือ?","choices":["โทรตำรวจ","ใช้ผ้าคลุม","ปิดวาล์วน้ำของเครื่องนั้นทันที","ไม่ทำอะไร"],"answer":2,"explain":"น้ำรั่วจากเครื่อง: ปิดวาล์วน้ำของเครื่องนั้นทันที ปิดเครื่องและถอดปลั๊ก เช็ดน้ำที่พื้นทันทีกันลื่น ติดป้ายเครื่องเสีย แจ้งเจ้าของร้าน"},{"id":183,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"ลูกค้าลื่นล้ม ขั้นตอนแรกคือ?","choices":["โทรเจ้าของร้านก่อน","เข้าไปดูอาการ ถามว่าเจ็บตรงไหน","พาไปร้านยา","ปลอบใจอย่างเดียว"],"answer":1,"explain":"ลูกค้าลื่นล้ม: เข้าไปดูอาการ ถามว่าเจ็บตรงไหน ห้ามขยับลูกค้าถ้าเขาบอกเจ็บมาก โทรเรียกรถพยาบาลถ้าจำเป็น (1669) ถ่ายภาพจุดที่ลื่น แจ้งเจ้าของร้าน"},{"id":184,"category":"ฉุกเฉิน","difficulty":"ง่าย","q":"ลูกค้าลื่นล้มและบอกเจ็บมาก ห้ามทำอะไร?","choices":["ถามอาการ","ขยับลูกค้า","โทร 1669","ถ่ายภาพจุดเกิดเหตุ"],"answer":1,"explain":"ห้ามขยับลูกค้าถ้าเขาบอกเจ็บมาก เพราะอาจทำให้บาดเจ็บเพิ่ม"},{"id":186,"category":"ฉุกเฉิน","difficulty":"ปานกลาง","q":"ลูกค้าทะเลาะกันในร้าน แม่บ้านควรทำอย่างไร?","choices":["อย่าเข้าไปขวางเอง ห้ามใช้กำลัง พูดสุภาพ มีอะไรให้ช่วยไหมคะ และโทรหาพี่ให้แจ้งตำรวจ","ใช้ของฟาด","เข้าไปขวางทันที","ออกจากร้าน"],"answer":0,"explain":"ลูกค้าทะเลาะกัน: อย่าเข้าไปขวางเอง ห้ามใช้กำลัง พูดสุภาพ ขอโทษนะคะ มีอะไรให้ช่วยไหมคะ โทรหาพี่เพื่อให้พี่แจ้งตำรวจระงับเหตุ"},{"id":187,"category":"ฉุกเฉิน","difficulty":"ปานกลาง","q":"ลูกค้าแจ้งว่าของหายในร้าน แม่บ้านควรทำอย่างไรเป็นชุดถูกต้อง?","choices":["สอบถามรายละเอียดของหายและเวลาที่หาย ตรวจกล้องวงจรปิดทันที แจ้งเจ้าของร้าน ถ้าจำเป็นแนะนำให้ลูกค้าแจ้งความ","ปฏิเสธทันที","โทรตำรวจให้ทันที","บอกให้กลับบ้าน"],"answer":0,"explain":"ของหายในร้าน: สอบถามรายละเอียดของหายและเวลาที่หาย ตรวจกล้องวงจรปิดทันที แจ้งเจ้าของร้าน ถ้าจำเป็นแนะนำลูกค้าแจ้งความ"},{"id":188,"category":"ฉุกเฉิน","difficulty":"ปานกลาง","q":"ก่อนติดป้ายเครื่องเสีย ในกรณีน้ำรั่ว ต้องทำอะไรครบทุกข้อ?","choices":["ปิดวาล์วน้ำ ปิดเครื่อง ถอดปลั๊ก เช็ดน้ำพื้น แล้วติดป้าย แจ้งเจ้าของร้าน","แค่ถอดปลั๊ก","ติดป้ายอย่างเดียว","แค่ปิดวาล์ว"],"answer":0,"explain":"กรณีน้ำรั่ว: ปิดวาล์วน้ำเครื่องนั้นทันที ปิดเครื่องและถอดปลั๊ก เช็ดน้ำที่พื้นทันทีกันลื่นล้ม ติดป้ายเครื่องเสีย และแจ้งเจ้าของร้าน"},{"id":189,"category":"ฉุกเฉิน","difficulty":"ปานกลาง","q":"เครื่องอบมีกลิ่นไหม้ หลังปิดเครื่องและถอดปลั๊ก ต้องรอกี่นาทีจึงเปิดประตูได้?","choices":["5 นาที","ทันที","30 นาที","2 ชั่วโมง"],"answer":2,"explain":"รอประมาณ 30 นาที จนเย็นแล้วค่อยเปิด ห้ามเปิดประตูทันทีเพราะอากาศจะเข้าทำให้ลุกไหม้แรงขึ้น"},{"id":190,"category":"ฉุกเฉิน","difficulty":"ปานกลาง","q":"กรณีเครื่องอบมีกลิ่นไหม้ ต้องเตรียมอะไรไว้ใกล้ๆ?","choices":["ผ้าเปียก","ปะแล้ง","น้ำเย็น","ถังดับเพลิง"],"answer":3,"explain":"เครื่องอบมีกลิ่นไหม้/ควัน: เตรียมถังดับเพลิงไว้ใกล้ๆ พร้อมโทรแจ้งเจ้าของร้านทันที"},{"id":191,"category":"สถานการณ์ยาก","difficulty":"ปานกลาง","q":"คนไร้บ้านเข้ามาหลบฝน ขณะมีลูกค้าจริงและที่นั่งเต็ม ทำอย่างไร?","choices":["ขอความกรุณาให้ออก","ปล่อยไว้","ไล่กลางฝน","ใช้กำลัง"],"answer":0,"explain":"คนไร้บ้านเข้ามาหลบฝน: ถ้ามีลูกค้าจริงและที่นั่งเต็ม ขอความกรุณาให้ออก ห้ามดูถูก ห้ามไล่กลางฝน"},{"id":192,"category":"สถานการณ์ยาก","difficulty":"ปานกลาง","q":"ในการจัดการสถานการณ์ยากทั้งหมด หลักการพื้นฐานเรื่องน้ำเสียงคือ?","choices":["เข้มงวดและก้าวร้าว","นิ่งเฉย","ตะโกน","สุภาพ ไม่ดูหมิ่น ไม่ก้าวร้าว แม้กับคนที่ไม่ได้ใช้บริการ"],"answer":3,"explain":"หลักการพื้นฐาน: ใช้น้ำเสียงสุภาพ ไม่ดูหมิ่น ไม่ก้าวร้าว แม้กับคนที่ไม่ได้ใช้บริการ"},{"id":193,"category":"สถานการณ์ยาก","difficulty":"ปานกลาง","q":"ถ้าสถานการณ์ควบคุมไม่ได้ ควรทำอะไร?","choices":["โทรแจ้งเจ้าของร้านทันที","วิ่งหนี","ใช้กำลัง","ปิดร้านเลย"],"answer":0,"explain":"หลักการพื้นฐาน: ถ้าสถานการณ์ควบคุมไม่ได้ โทรแจ้งเจ้าของร้านทันที"},{"id":194,"category":"สถานการณ์ยาก","difficulty":"ยาก","q":"คนไร้บ้านเข้ามานอนในร้านตอนกลางคืน เวลา 21:00 มีลูกค้า 1 คนกำลังพับผ้า แม่บ้านควรทำอะไรเป็นชุดที่ดีที่สุด?","choices":["ปลุกอย่างนุ่มนวล แจ้งว่าไม่ใช่ที่พัก ถ้าไม่ออก โทรแจ้งเจ้าของร้าน","ตะโกนปลุก ใช้กำลังลาก","ใช้น้ำสาด","เพิกเฉย"],"answer":0,"explain":"คนไร้บ้านนอนในร้าน: ปลุกอย่างนุ่มนวล แจ้งว่าไม่ใช่ที่พัก ถ้าไม่ออก โทรแจ้งเจ้าของร้าน ห้ามตะโกน ห้ามใช้น้ำสาด ห้ามใช้กำลัง"},{"id":195,"category":"สถานการณ์ยาก","difficulty":"ยาก","q":"คนเมาเข้ามาในร้าน Teddy 2 ดูคล้ายมีอาการทางจิตและพูดเสียงดัง มีลูกค้านักศึกษา 3 คนกำลังใช้เครื่อง แม่บ้านควรทำอะไรเป็นอันดับแรก?","choices":["ตะโกนใส่","ไม่เผชิญหน้าโดยลำพัง โทรแจ้งเจ้าของร้านให้เรียกตำรวจ ห้ามเข้าใกล้","เข้าไปจัดการคนเมาเอง","ปิดเครื่องทุกเครื่อง"],"answer":1,"explain":"คนเมา/มีอาการทางจิต: ไม่เผชิญหน้าโดยลำพัง โทรหาพี่ให้เรียกตำรวจ ห้ามเข้าใกล้ ห้ามจัดการเอง เพื่อความปลอดภัยของแม่บ้านและลูกค้า"},{"id":196,"category":"ฉุกเฉิน","difficulty":"ยาก","q":"แม่บ้านเห็นลูกค้าผู้สูงอายุล้มลื่นในร้าน Otteri หัวกระแทกพื้น หมดสติเล็กน้อยแต่หายใจ ขั้นตอนที่ดีที่สุดคือ?","choices":["ให้ดื่มน้ำ","ห้ามขยับลูกค้า โทร 1669 ทันที ถ่ายภาพจุดเกิดเหตุ และแจ้งเจ้าของร้าน","ขยับลูกค้าไปนั่งเก้าอี้","รอลูกค้าฟื้น"],"answer":1,"explain":"ลูกค้าลื่นล้ม: ห้ามขยับถ้าเจ็บมาก/หมดสติ โทรเรียกรถพยาบาลถ้าจำเป็น (1669) ถ่ายภาพจุดที่ลื่น (หลักฐาน) แจ้งเจ้าของร้านทันที"},{"id":197,"category":"ฉุกเฉิน","difficulty":"ยาก","q":"แม่บ้านที่ Otteri กำลังจะเปิดร้าน 9:00 พบว่าเครื่องซัก 28 kg ไม่ทำงาน ลูกค้ามาแล้ว 2 คน ทำอะไรเป็นชุดที่ดีที่สุด?","choices":["ทุบเครื่อง","ตรวจปลั๊กและ Breaker ถ้าไม่ได้ ติดป้ายเครื่องเสีย โทรแจ้งเจ้าของร้าน และแนะนำลูกค้าใช้เครื่องอื่น/รอ","ไม่ทำอะไร","ปิดร้านเลย"],"answer":1,"explain":"เครื่องไม่ทำงาน: ตรวจปลั๊กไฟ ตรวจ Breaker ในตู้ไฟ ถ้ายังไม่ได้ ติดป้ายเครื่องเสียและโทรแจ้งเจ้าของร้าน พร้อมแนะนำลูกค้าใช้เครื่องอื่น"},{"id":198,"category":"ฉุกเฉิน","difficulty":"ยาก","q":"กรณีไฟไหม้เครื่องอบเล็กน้อย แม่บ้านปฏิบัติได้ดีที่สุดตามคู่มือ ข้อใดถูกต้อง?","choices":["ปิดเครื่อง ถอดปลั๊ก ห้ามเปิดประตู เตรียมถังดับเพลิงใกล้ๆ รอ 30 นาที โทรเจ้าของร้าน หากลุกลามโทร 199","ใช้ผ้าเปียกคลุม","วิ่งหนี","เปิดประตูเครื่องระบายควัน เทน้ำใส่"],"answer":0,"explain":"เครื่องอบมีกลิ่นไหม้/ควัน: ปิดเครื่องและถอดปลั๊กทันที ห้ามเปิดประตู (อากาศเข้าจะลุกไหม้แรงขึ้น) รอ 30 นาทีจนเย็น เตรียมถังดับเพลิงไว้ใกล้ๆ โทรแจ้งเจ้าของร้าน ถ้าลุกลามโทรดับเพลิง 199"},{"id":199,"category":"สถานการณ์ยาก","difficulty":"ยาก","q":"กรณีกลุ่มเยาวชน 5 คนเข้ามาในร้าน Teddy 1 นั่งคุยเสียงดังเปิดเพลง ไม่ใช้บริการ ทำให้ลูกค้านักศึกษาที่กำลังใช้เครื่องอึดอัด ขั้นตอนที่ดีที่สุดคือ?","choices":["ขอความร่วมมือลดเสียงอย่างสุภาพก่อน ถ้าไม่ใช้บริการ ขอให้ออก ห้ามทะเลาะ ห้ามขู่","ไล่ออกแรงๆ","โทรตำรวจทันที","ไม่ทำอะไร"],"answer":0,"explain":"กลุ่มเยาวชนนั่งคุยเสียงดัง: ขอความร่วมมือลดเสียง ถ้าไม่ใช้บริการ ขอให้ออก ห้ามทะเลาะ ห้ามขู่ ลูกค้าจริงต้องได้ประสบการณ์ที่ดี"},{"id":200,"category":"ฉุกเฉิน","difficulty":"ยาก","q":"แม่บ้านถ่ายภาพจุดที่ลูกค้าลื่นล้ม นอกจากแจ้งเจ้าของร้าน ทำเพราะเหตุใด?","choices":["ขายภาพ","ความสนุก","โพสต์ social","เป็นหลักฐาน"],"answer":3,"explain":"ถ่ายภาพจุดที่ลื่นเพื่อหลักฐาน เป็นขั้นตอนสำคัญในการจัดการลูกค้าลื่นล้ม"}]</script>
+
+<script>
+// ====== โหลดข้อสอบ ======
+const QUESTIONS = JSON.parse(document.getElementById('qdata').textContent);
+
+const CONFIG = {
+  EASY: 25, MED: 15, HARD: 10,
+  POINT: { 'ง่าย':1, 'ปานกลาง':2, 'ยาก':4.5 },
+  TOTAL: 100,
+  PASS: 70,
+  OWNER_PW: '1303'
+};
+
+let state = { page:'home', exam:null, ownerView:'overview' };
+
+// ====== STORAGE (Google Sheets ผ่าน Apps Script) ======
+// ใส่ URL ของ Apps Script ที่นี่ (จะได้รับหลังจาก Deploy as Web app)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwOiaIQ3olJ22DgtUjKwTgxAkIl0fCuu2gPY6OlcVmwaZC3zVQEm5bO9NMpjAEGdVd4AQ/exec';
+
+let _cache = null; // cache ผลลัพธ์ในหน่วยความจำ ลด API call
+let _cacheTime = 0;
+const CACHE_MS = 5000; // cache 5 วินาที
+
+async function saveResult(r){
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('__APPS')===0){
+    alert('⚠️ ยังไม่ได้ตั้งค่า Google Sheets — กรุณาแก้ตัวแปร APPS_SCRIPT_URL ในไฟล์ HTML ก่อน');
+    return false;
+  }
+  try{
+    // ส่งแบบ no-cors เพื่อหลีกเลี่ยง CORS preflight
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'save', data: r})
+    });
+    _cache = null; // เคลียร์ cache เพื่อโหลดใหม่
+    return true;
+  }catch(e){
+    console.error('saveResult error', e);
+    alert('⚠️ ส่งข้อมูลไป Google Sheets ไม่สำเร็จ\n' + e.message);
+    return false;
+  }
+}
+
+async function loadAll(){
+  // ใช้ cache
+  if(_cache && (Date.now() - _cacheTime) < CACHE_MS) return _cache;
+  
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('__APPS')===0){
+    return [];
+  }
+  try{
+    const res = await fetch(APPS_SCRIPT_URL + '?action=list&t=' + Date.now());
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data = await res.json();
+    if(!Array.isArray(data)) return [];
+    // เรียงล่าสุดก่อน
+    data.sort((a,b) => b.finishedAt - a.finishedAt);
+    _cache = data;
+    _cacheTime = Date.now();
+    return data;
+  }catch(e){
+    console.error('loadAll error', e);
+    return [];
+  }
+}
+
+async function delResult(id){
+  if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.indexOf('__APPS')===0) return;
+  try{
+    await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({action:'delete', id: id})
+    });
+    _cache = null;
+  }catch(e){
+    console.error('delResult error', e);
+  }
+}
+
+// ====== HELPERS ======
+function shuffle(a){const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+function pickQs(){
+  const e=QUESTIONS.filter(q=>q.difficulty==='ง่าย');
+  const m=QUESTIONS.filter(q=>q.difficulty==='ปานกลาง');
+  const h=QUESTIONS.filter(q=>q.difficulty==='ยาก');
+  return shuffle([
+    ...shuffle(e).slice(0,CONFIG.EASY),
+    ...shuffle(m).slice(0,CONFIG.MED),
+    ...shuffle(h).slice(0,CONFIG.HARD)
+  ]);
+}
+function fmtDate(ts){
+  const d=new Date(ts);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()+543} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+}
+function fmtDateShort(ts){
+  const d=new Date(ts);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${(d.getFullYear()+543)%100}`
+}
+function fmtDur(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60);return `${m}:${String(s%60).padStart(2,'0')}`}
+function calcGrade(p){
+  if(p>=85)return{l:'A',label:'ยอดเยี่ยม'};
+  if(p>=75)return{l:'B',label:'ดี'};
+  if(p>=65)return{l:'C',label:'พอใช้'};
+  if(p>=50)return{l:'D',label:'ต้องปรับปรุง'};
+  return{l:'F',label:'ต้องเรียนใหม่'}
+}
+function gradeBg(l){return l==='A'?'var(--sage)':l==='B'?'var(--bubble)':l==='C'?'var(--gold)':l==='D'?'var(--warm)':'var(--wrong)'}
+function gradeFg(l){return (l==='B'||l==='C')?'var(--ink)':'#fff'}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+const $=id=>document.getElementById(id);
+const app=()=>$('app');
+
+function render(){
+  const r=app();
+  if(state.page==='home') return rHome(r);
+  if(state.page==='exam-start') return rStart(r);
+  if(state.page==='exam-run') return rRun(r);
+  if(state.page==='exam-result') return rResult(r);
+  if(state.page==='owner-login') return rLogin(r);
+  if(state.page==='owner') return rOwner(r);
+}
+
+// === HOME ===
+function rHome(root){
+  root.innerHTML=`
+  <div class="container">
+    <div class="home-hero">
+      <div class="ornament">🫧</div>
+      <h1>ระบบทดสอบ<span class="accent">แม่บ้าน</span></h1>
+      <p>ร้านสะดวกซัก Otteri / Teddy 1 / Teddy 2 — ประเมินความรู้และทักษะแม่บ้านตามคู่มือมาตรฐาน</p>
+    </div>
+    <div class="home-cards">
+      <div class="card warm" onclick="goStart()">
+        <span class="arrow">→</span>
+        <div class="num">01 / สำหรับแม่บ้าน</div>
+        <h2>เริ่มทำข้อสอบ</h2>
+        <p>ทำข้อสอบ 50 ข้อ สุ่มจากคลัง ${QUESTIONS.length} ข้อ ใช้เวลาประมาณ 30-45 นาที ดูคะแนนทันทีหลังส่ง</p>
+      </div>
+      <div class="card sage" onclick="goLogin()">
+        <span class="arrow">→</span>
+        <div class="num">02 / สำหรับเจ้าของร้าน</div>
+        <h2>หน้าผู้ดูแล</h2>
+        <p>ดูประวัติการสอบของแม่บ้านทุกคน ดูข้อที่ตอบผิดบ่อย วิเคราะห์ผลรายบุคคล (ต้องใส่รหัสผ่าน)</p>
+      </div>
+    </div>
+    <div class="stats-strip">
+      <div class="stat-item"><div class="stat-num">${QUESTIONS.length}</div><div class="stat-label">ข้อสอบ</div></div>
+      <div class="stat-item"><div class="stat-num">6</div><div class="stat-label">หมวด</div></div>
+      <div class="stat-item"><div class="stat-num">50</div><div class="stat-label">ข้อ/รอบ</div></div>
+      <div class="stat-item"><div class="stat-num">100</div><div class="stat-label">คะแนนเต็ม</div></div>
+    </div>
+    <p class="small center mt-l">เกณฑ์ผ่าน 70 คะแนน · A 85+ / B 75+ / C 65+ / D 50+</p>
+  </div>`
+}
+
+// === EXAM START ===
+function rStart(root){
+  root.innerHTML=`
+  <div class="container">
+    <div class="exam-header">
+      <div><a href="#" onclick="goHome();return false" class="small">← กลับหน้าหลัก</a></div>
+      <div class="info">เริ่มต้นทำข้อสอบ</div>
+    </div>
+    <div class="q-card">
+      <h2 style="font-size:24px;margin-bottom:8px">ก่อนเริ่มทำข้อสอบ</h2>
+      <p class="small mt">กรุณากรอกชื่อและสาขาที่ทำงาน ระบบจะบันทึกผลให้เจ้าของร้านดูประวัติย้อนหลังได้</p>
+      <div class="mt-l">
+        <label class="label">ชื่อแม่บ้าน</label>
+        <input id="hk-name" placeholder="เช่น พี่นก, น้องเอ้, คุณสมศรี">
+      </div>
+      <div class="mt">
+        <label class="label">สาขา</label>
+        <select id="hk-branch">
+          <option value="Otteri">Otteri</option>
+          <option value="Teddy 1">Teddy 1</option>
+          <option value="Teddy 2">Teddy 2</option>
+        </select>
+      </div>
+      <div class="flash flash-info mt-l">
+        <strong>📋 รายละเอียดข้อสอบ</strong><br>
+        • รวม 50 ข้อ (ง่าย 25 / ปานกลาง 15 / ยาก 10)<br>
+        • คะแนนเต็ม 100 (ง่าย 1 / ปานกลาง 2 / ยาก 4.5)<br>
+        • เกณฑ์ผ่าน 70 คะแนน<br>
+        • แสดงคะแนนทันทีหลังส่ง (ไม่แสดงเฉลย)<br>
+        • ระบบจะบันทึกผลทุกครั้งที่ทำข้อสอบ
+      </div>
+      <div class="mt-l row-gap">
+        <button class="btn btn-warm" onclick="startExam()">เริ่มทำข้อสอบ →</button>
+        <button class="btn btn-secondary" onclick="goHome()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>`
+}
+
+function startExam(){
+  const name=$('hk-name').value.trim();
+  const branch=$('hk-branch').value;
+  if(!name){alert('กรุณากรอกชื่อก่อน');return}
+  const qs=pickQs();
+  state.exam={housekeeper:name,branch,questions:qs,answers:new Array(qs.length).fill(null),current:0,startedAt:Date.now()};
+  state.page='exam-run';render();
+}
+
+// === EXAM RUN ===
+function rRun(root){
+  const e=state.exam;
+  const q=e.questions[e.current];
+  const total=e.questions.length;
+  const ansd=e.answers.filter(a=>a!==null).length;
+  const prog=((e.current+1)/total)*100;
+  const dc=q.difficulty==='ง่าย'?'tag-easy':q.difficulty==='ปานกลาง'?'tag-med':'tag-hard';
+  root.innerHTML=`
+  <div class="container">
+    <div class="exam-header">
+      <div class="info">${esc(e.housekeeper)} <span>/ ${e.branch}</span></div>
+      <div class="row-gap">
+        <span class="small">ตอบแล้ว <strong>${ansd}/${total}</strong></span>
+        <span class="timer" id="timer">0:00</span>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
+    <div class="q-card">
+      <div class="q-meta">
+        <span class="tag tag-cat">${esc(q.category)}</span>
+        <span class="tag ${dc}">${q.difficulty}</span>
+      </div>
+      <div class="q-text"><span class="q-num">ข้อ ${e.current+1}/${total}</span> ${esc(q.q)}</div>
+      <div class="choices">
+        ${q.choices.map((c,i)=>`<button class="choice ${e.answers[e.current]===i?'selected':''}" onclick="pick(${i})"><span class="ck">${'กขคง'[i]}</span><span>${esc(c)}</span></button>`).join('')}
+      </div>
+    </div>
+    <div class="exam-nav">
+      <div class="left">
+        <button class="btn btn-secondary" onclick="prev()" ${e.current===0?'disabled style="opacity:.4"':''}>← ก่อนหน้า</button>
+        <button class="btn btn-secondary" onclick="next()" ${e.current===total-1?'disabled style="opacity:.4"':''}>ถัดไป →</button>
+      </div>
+      <button class="btn btn-warm" onclick="submit()">ส่งข้อสอบ</button>
+    </div>
+    <p class="small center mt">📌 ข้ามข้อแล้วกลับมาทำใหม่ได้ — กดส่งข้อสอบเมื่อพร้อม</p>
+  </div>`;
+  if(window.__t)clearInterval(window.__t);
+  window.__t=setInterval(()=>{const t=$('timer');if(t)t.textContent=fmtDur(Date.now()-e.startedAt)},1000);
+}
+function pick(i){state.exam.answers[state.exam.current]=i;render()}
+function prev(){if(state.exam.current>0){state.exam.current--;render()}}
+function next(){if(state.exam.current<state.exam.questions.length-1){state.exam.current++;render()}}
+
+async function submit(){
+  const e=state.exam;
+  const un=e.answers.filter(a=>a===null).length;
+  if(un>0){if(!confirm(`ยังเหลืออีก ${un} ข้อที่ยังไม่ตอบ ส่งเลยหรือไม่?\n(ข้อที่ไม่ตอบจะนับเป็นผิด)`))return}
+  if(window.__t)clearInterval(window.__t);
+  let total=0;
+  const det=[],cs={};
+  e.questions.forEach((q,i)=>{
+    const ua=e.answers[i],corr=ua===q.answer,pts=corr?CONFIG.POINT[q.difficulty]:0;
+    total+=pts;
+    det.push({qid:q.id,q:q.q,choices:q.choices,correctIdx:q.answer,userIdx:ua,correct:corr,points:pts,maxPoints:CONFIG.POINT[q.difficulty],category:q.category,difficulty:q.difficulty,explain:q.explain});
+    if(!cs[q.category])cs[q.category]={correct:0,total:0,pts:0,maxPts:0};
+    cs[q.category].total++;cs[q.category].maxPts+=CONFIG.POINT[q.difficulty];
+    if(corr){cs[q.category].correct++;cs[q.category].pts+=CONFIG.POINT[q.difficulty]}
+  });
+  const r={
+    id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+    housekeeper:e.housekeeper,branch:e.branch,
+    startedAt:e.startedAt,finishedAt:Date.now(),duration:Date.now()-e.startedAt,
+    totalScore:Math.round(total*10)/10,maxScore:CONFIG.TOTAL,
+    pct:Math.round((total/CONFIG.TOTAL)*1000)/10,
+    correctCount:det.filter(d=>d.correct).length,totalCount:det.length,
+    catStats:cs,details:det
+  };
+  // แสดง loading
+  app().innerHTML = `<div class="container"><div style="text-align:center;padding:80px 20px"><div style="font-size:48px;margin-bottom:16px">📤</div><h2>กำลังส่งคำตอบ...</h2><p class="small mt">กรุณารอสักครู่ ระบบกำลังบันทึกผลไป Google Sheets</p></div></div>`;
+  
+  await saveResult(r);
+  state.exam.result=r;
+  state.page='exam-result';render();
+}
+
+// === RESULT ===
+function rResult(root){
+  const r=state.exam.result;
+  const g=calcGrade(r.pct),pass=r.pct>=CONFIG.PASS;
+  let msg='';
+  if(r.pct>=85)msg='ยอดเยี่ยมมาก! รู้คู่มือแม่นเป็นอย่างดี';
+  else if(r.pct>=75)msg='ดีมาก! มีจุดเล็กๆ ที่อาจกลับไปทบทวนเพิ่ม';
+  else if(r.pct>=65)msg='พอใช้ได้ แนะนำกลับไปอ่านคู่มือเพิ่มในจุดที่ตอบผิด';
+  else if(r.pct>=50)msg='ต้องปรับปรุง แนะนำทบทวนคู่มือทั้งเล่มและทดสอบใหม่';
+  else msg='ต้องเรียนใหม่ให้เข้าใจ ขอให้ดูคู่มือใหม่ทั้งหมดก่อน';
+  root.innerHTML=`
+  <div class="container">
+    <div class="exam-header">
+      <div class="info">${esc(r.housekeeper)} / ${r.branch}</div>
+      <div class="small">เสร็จสิ้น ${fmtDate(r.finishedAt)} · ใช้เวลา ${fmtDur(r.duration)}</div>
+    </div>
+    <div class="result-card">
+      <div class="grade-badge grade-${g.l}">เกรด ${g.l} · ${g.label}</div>
+      <div class="score-display">${r.totalScore}<span class="of">/${r.maxScore}</span></div>
+      <div class="score-percent">${r.pct}% · ตอบถูก ${r.correctCount}/${r.totalCount} ข้อ</div>
+      <div class="result-msg">${msg}</div>
+      <div class="flash ${pass?'flash-info':'flash-warn'}" style="margin:24px auto 0;max-width:480px;text-align:left">
+        ${pass?'✅ <strong>ผ่านเกณฑ์</strong> (เกณฑ์ผ่าน '+CONFIG.PASS+' คะแนน)':'⚠️ <strong>ยังไม่ผ่านเกณฑ์</strong> (ต้องการ '+CONFIG.PASS+' คะแนน) — ขอให้ทบทวนคู่มือและสอบใหม่'}
+      </div>
+      <div class="cat-breakdown">
+        <h3>คะแนนแยกตามหมวด</h3>
+        ${Object.entries(r.catStats).map(([cat,s])=>{const p=Math.round((s.pts/s.maxPts)*100);return `<div class="cat-row"><span class="name">${esc(cat)}</span><span class="score">${s.pts.toFixed(1)}/${s.maxPts.toFixed(1)} (${p}%)</span></div>`}).join('')}
+      </div>
+    </div>
+    <div class="row-gap mt-l center" style="justify-content:center">
+      <button class="btn" onclick="goHome()">กลับหน้าหลัก</button>
+      <button class="btn btn-secondary" onclick="state.page='exam-start';render()">ทำข้อสอบใหม่</button>
+    </div>
+    <p class="small center mt-l">บันทึกผลการสอบเรียบร้อยแล้ว · เจ้าของร้านสามารถเข้าดูรายละเอียดและเฉลยได้ในหน้าผู้ดูแล</p>
+  </div>`
+}
+
+// === OWNER LOGIN ===
+function rLogin(root){
+  root.innerHTML=`
+  <div class="pw-modal">
+    <div class="box">
+      <h2>🔒 หน้าผู้ดูแล</h2>
+      <p>กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน</p>
+      <input id="pw" type="password" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')doLogin()">
+      <div class="pw-error" id="pw-err"></div>
+      <div class="row-gap" style="justify-content:center;margin-top:16px">
+        <button class="btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+        <button class="btn btn-secondary" onclick="goHome()">ยกเลิก</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>$('pw')?.focus(),100);
+}
+function doLogin(){
+  if($('pw').value===CONFIG.OWNER_PW){state.page='owner';render()}
+  else{$('pw-err').textContent='❌ รหัสผ่านไม่ถูกต้อง';$('pw').value=''}
+}
+
+// === OWNER ===
+async function rOwner(root){
+  const v=state.ownerView;
+  root.innerHTML=`
+  <div class="owner-shell">
+    <div class="owner-header">
+      <div class="container">
+        <h1>📊 หน้าผู้ดูแล</h1>
+        <div class="sub" id="owner-sub">กำลังโหลดข้อมูลจาก Google Sheets...</div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="owner-tabs">
+        <button class="owner-tab ${v==='overview'?'active':''}" onclick="setV('overview')">ภาพรวม</button>
+        <button class="owner-tab ${v==='history'?'active':''}" onclick="setV('history')">ประวัติการสอบ</button>
+        <button class="owner-tab ${v==='persons'?'active':''}" onclick="setV('persons')">รายบุคคล</button>
+        <button class="owner-tab ${v==='weak'?'active':''}" onclick="setV('weak')">ข้อตอบผิดบ่อย</button>
+        <button class="owner-tab" onclick="refreshOwner()" title="โหลดข้อมูลล่าสุดจาก Google Sheets">🔄 รีเฟรช</button>
+        <button class="owner-tab" onclick="goHome()">← กลับ</button>
+      </div>
+      <div id="owner-content"><div class="empty-state"><div class="ico">⏳</div><p>กำลังโหลดข้อมูล...</p></div></div>
+    </div>
+  </div>`;
+  
+  // โหลดแบบ async ไม่บล็อก UI
+  _cache = null; // เคลียร์ cache เพื่อโหลดสด
+  const all = await loadAll();
+  const sub = $('owner-sub');
+  if(sub) sub.textContent = `ระบบทดสอบแม่บ้าน · ${all.length} การสอบในระบบ`;
+  rContent(all);
+}
+function setV(v){
+  state.ownerView=v;
+  const c=$('owner-content');
+  if(c) c.innerHTML=`<div class="empty-state"><div class="ico">⏳</div><p>กำลังโหลด...</p></div>`;
+  loadAll().then(all=>{
+    const sub=$('owner-sub');
+    if(sub) sub.textContent = `ระบบทดสอบแม่บ้าน · ${all.length} การสอบในระบบ`;
+    rContent(all);
+  });
+  // อัพเดท tab active
+  document.querySelectorAll('.owner-tab').forEach(t=>t.classList.remove('active'));
+  event?.target?.classList.add('active');
+}
+async function refreshOwner(){
+  _cache = null;
+  const c=$('owner-content');
+  if(c) c.innerHTML=`<div class="empty-state"><div class="ico">⏳</div><p>กำลังรีเฟรชข้อมูล...</p></div>`;
+  const all = await loadAll();
+  const sub=$('owner-sub');
+  if(sub) sub.textContent = `ระบบทดสอบแม่บ้าน · ${all.length} การสอบในระบบ · อัพเดทล่าสุด ${new Date().toLocaleTimeString('th-TH')}`;
+  rContent(all);
+}
+
+function rContent(all){
+  const c=$('owner-content');if(!c)return;
+  const v=state.ownerView;
+  if(all.length===0){
+    c.innerHTML=`<div class="empty-state"><div class="ico">📭</div><p>ยังไม่มีข้อมูลการสอบในระบบ</p><p class="small mt">รอแม่บ้านทำข้อสอบ ผลจะแสดงที่นี่</p></div>`;
+    return;
+  }
+  if(v==='overview')return rOverview(c,all);
+  if(v==='history')return rHistory(c,all);
+  if(v==='weak')return rWeak(c,all);
+  if(v==='persons')return rPersons(c,all);
+}
+
+function rOverview(c,all){
+  const total=all.length;
+  const avg=(all.reduce((s,r)=>s+r.pct,0)/total).toFixed(1);
+  const passed=all.filter(r=>r.pct>=CONFIG.PASS).length;
+  const passRate=Math.round((passed/total)*100);
+  const top=all.slice().sort((a,b)=>b.pct-a.pct)[0];
+  const hkSet=new Set(all.map(r=>r.housekeeper+'|'+r.branch));
+  
+  // recent 7 days
+  const now=Date.now(),weekAgo=now-7*86400000;
+  const recent=all.filter(r=>r.finishedAt>=weekAgo);
+  
+  // cat
+  const catAgg={};
+  all.forEach(r=>Object.entries(r.catStats).forEach(([k,s])=>{
+    if(!catAgg[k])catAgg[k]={pts:0,maxPts:0};
+    catAgg[k].pts+=s.pts;catAgg[k].maxPts+=s.maxPts;
+  }));
+  // branch
+  const bAgg={};
+  all.forEach(r=>{
+    if(!bAgg[r.branch])bAgg[r.branch]={sum:0,count:0,pass:0};
+    bAgg[r.branch].sum+=r.pct;bAgg[r.branch].count++;
+    if(r.pct>=CONFIG.PASS)bAgg[r.branch].pass++;
+  });
+  
+  c.innerHTML=`
+  <div class="metric-grid">
+    <div class="metric"><div class="lbl">การสอบทั้งหมด</div><div class="val">${total}</div><div class="sub">ครั้ง · 7 วันล่าสุด ${recent.length}</div></div>
+    <div class="metric"><div class="lbl">แม่บ้าน</div><div class="val">${hkSet.size}</div><div class="sub">คน</div></div>
+    <div class="metric"><div class="lbl">คะแนนเฉลี่ย</div><div class="val">${avg}%</div><div class="sub">จาก 100</div></div>
+    <div class="metric"><div class="lbl">อัตราผ่าน</div><div class="val">${passRate}%</div><div class="sub">${passed}/${total} ครั้ง</div></div>
+  </div>
+  <h3 style="margin:24px 0 12px;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:var(--neutral);border-bottom:2px solid var(--ink);padding-bottom:6px">คะแนนเฉลี่ยรายหมวด</h3>
+  <div class="metric-grid">
+    ${Object.entries(catAgg).map(([cat,s])=>{const p=Math.round((s.pts/s.maxPts)*100);const col=p>=75?'var(--sage)':p>=60?'var(--gold)':'var(--warm)';return `<div class="metric"><div class="lbl">${esc(cat)}</div><div class="val" style="color:${col}">${p}%</div></div>`}).join('')}
+  </div>
+  <h3 style="margin:24px 0 12px;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:var(--neutral);border-bottom:2px solid var(--ink);padding-bottom:6px">คะแนนเฉลี่ยรายสาขา</h3>
+  <div class="metric-grid">
+    ${Object.entries(bAgg).map(([b,s])=>{const a=(s.sum/s.count).toFixed(1);return `<div class="metric"><div class="lbl">${esc(b)}</div><div class="val">${a}%</div><div class="sub">${s.count} ครั้ง · ผ่าน ${s.pass}/${s.count}</div></div>`}).join('')}
+  </div>
+  ${top?`<div class="flash flash-info mt-l">🏆 <strong>คะแนนสูงสุด:</strong> ${esc(top.housekeeper)} (${top.branch}) — ${top.totalScore} คะแนน (${top.pct}%) เมื่อ ${fmtDate(top.finishedAt)}</div>`:''}`;
+}
+
+function rHistory(c,all){
+  c.innerHTML=`
+  <div class="flash flash-info">📋 ประวัติการสอบทั้งหมด เรียงจากล่าสุด — กดดูรายละเอียดเพื่อเห็นเฉลยรายข้อและคำอธิบาย</div>
+  <div class="history-list">
+    ${all.map(r=>{
+      const g=calcGrade(r.pct),pass=r.pct>=CONFIG.PASS;
+      return `<div class="history-item">
+        <div>
+          <div class="name">${esc(r.housekeeper)} <span class="small" style="font-weight:400">/ ${r.branch}</span></div>
+          <div class="date">${fmtDate(r.finishedAt)} · ${fmtDur(r.duration)} · ตอบถูก ${r.correctCount}/${r.totalCount}</div>
+        </div>
+        <div class="score" style="color:${pass?'var(--right)':'var(--wrong)'}">${r.totalScore}/${r.maxScore}</div>
+        <div class="grade grade-${g.l}" style="background:${gradeBg(g.l)};color:${gradeFg(g.l)}">${g.l}</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="showDetail('${r.id}')">รายละเอียด</button>
+          <button onclick="confirmDel('${r.id}')" title="ลบ">🗑</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+async function showDetail(id){
+  const all=await loadAll();
+  const r=all.find(x=>x.id===id);
+  if(!r)return;
+  const wrongs=r.details.filter(d=>!d.correct);
+  const corrects=r.details.filter(d=>d.correct);
+  const m=document.createElement('div');
+  m.id='modal-host';
+  m.innerHTML=`
+  <div class="detail-modal" onclick="if(event.target===this)closeDetail()">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2 style="font-size:22px">${esc(r.housekeeper)} / ${r.branch}</h2>
+          <p class="small">${fmtDate(r.finishedAt)} · ใช้เวลา ${fmtDur(r.duration)}</p>
+        </div>
+        <button class="btn btn-secondary" onclick="closeDetail()">ปิด ✕</button>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><div class="lbl">คะแนน</div><div class="val">${r.totalScore}/${r.maxScore}</div><div class="sub">${r.pct}%</div></div>
+        <div class="metric"><div class="lbl">ตอบถูก</div><div class="val" style="color:var(--right)">${corrects.length}</div><div class="sub">จาก ${r.details.length} ข้อ</div></div>
+        <div class="metric"><div class="lbl">ตอบผิด</div><div class="val" style="color:var(--wrong)">${wrongs.length}</div><div class="sub">ข้อ</div></div>
+      </div>
+      <h3 style="margin:24px 0 12px;font-size:16px;border-bottom:2px solid var(--wrong);padding-bottom:6px">❌ ข้อที่ตอบผิด (${wrongs.length} ข้อ)</h3>
+      ${wrongs.length===0?'<p class="small">— ไม่มีข้อที่ตอบผิด —</p>':wrongs.map(d=>renderDQ(d,false)).join('')}
+      <h3 style="margin:24px 0 12px;font-size:16px;border-bottom:2px solid var(--right);padding-bottom:6px">
+        ✅ ข้อที่ตอบถูก (${corrects.length} ข้อ)
+        <span class="review-toggle" onclick="document.getElementById('clist').classList.toggle('hidden')" style="float:right">แสดง/ซ่อน</span>
+      </h3>
+      <div id="clist" class="hidden">${corrects.map(d=>renderDQ(d,true)).join('')}</div>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+}
+function closeDetail(){$('modal-host')?.remove()}
+
+function renderDQ(d,corr){
+  const lt=['ก','ข','ค','ง'];
+  return `<div class="detail-q ${corr?'correct':'wrong'}">
+    <div class="head">
+      <span class="tag tag-cat">${esc(d.category)}</span>
+      <span class="tag ${d.difficulty==='ง่าย'?'tag-easy':d.difficulty==='ปานกลาง'?'tag-med':'tag-hard'}">${d.difficulty}</span>
+      <span class="small">ข้อ #${d.qid} · ${d.points}/${d.maxPoints} คะแนน</span>
+    </div>
+    <div class="text">${esc(d.q)}</div>
+    ${d.choices.map((c,i)=>{
+      let cls='ch';
+      if(i===d.correctIdx&&i===d.userIdx)cls+=' user-correct';
+      else if(i===d.correctIdx)cls+=' correct-ans';
+      else if(i===d.userIdx)cls+=' user-pick';
+      return `<div class="${cls}"><strong>${lt[i]}.</strong> ${esc(c)}${i===d.correctIdx?' <span style="color:var(--right);font-size:12px;font-weight:700">✓ เฉลย</span>':''}${i===d.userIdx&&i!==d.correctIdx?' <span style="color:var(--wrong);font-size:12px;font-weight:700">← ตอบ</span>':''}${i===d.userIdx&&i===d.correctIdx?' <span style="color:var(--right);font-size:12px;font-weight:700">← ตอบ</span>':''}</div>`;
+    }).join('')}
+    ${d.userIdx===null?'<div class="ch" style="color:var(--neutral);font-style:italic">— ไม่ได้ตอบข้อนี้ —</div>':''}
+    <div class="explain"><strong>📘 คำอธิบาย:</strong> ${esc(d.explain)}</div>
+  </div>`;
+}
+
+async function confirmDel(id){
+  if(!confirm('ลบผลการสอบนี้? (ลบแล้วไม่สามารถกู้คืนได้)'))return;
+  await delResult(id);
+  loadAll().then(rContent);
+}
+
+function rWeak(c,all){
+  const stats={};
+  all.forEach(r=>r.details.forEach(d=>{
+    if(!stats[d.qid])stats[d.qid]={qid:d.qid,q:d.q,category:d.category,difficulty:d.difficulty,wrong:0,total:0,choices:d.choices,correctIdx:d.correctIdx,explain:d.explain};
+    stats[d.qid].total++;
+    if(!d.correct)stats[d.qid].wrong++;
+  }));
+  const list=Object.values(stats).filter(s=>s.wrong>0).sort((a,b)=>(b.wrong/b.total)-(a.wrong/a.total)||b.wrong-a.wrong);
+  if(list.length===0){c.innerHTML=`<div class="empty-state"><div class="ico">🎉</div><p>ไม่มีข้อที่ตอบผิดเลย!</p></div>`;return}
+  c.innerHTML=`
+  <div class="flash flash-warn">⚠️ ข้อที่แม่บ้านตอบผิดบ่อย — ใช้สำหรับการอบรมเพิ่มเติม (เรียงตามอัตราตอบผิด)</div>
+  <div class="weak-list">
+    ${list.map(s=>{
+      const p=Math.round((s.wrong/s.total)*100);
+      return `<details class="weak-item">
+        <summary>
+          <span class="qid">#${s.qid}</span>
+          <div>
+            <div class="qq"><strong>${esc(s.category)}</strong> · ${s.difficulty}</div>
+            <div class="qq" style="margin-top:4px">${esc(s.q)}</div>
+          </div>
+          <span class="ct">${s.wrong}/${s.total} (${p}%)</span>
+        </summary>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--ink)">
+          ${s.choices.map((ch,i)=>`<div class="ch ${i===s.correctIdx?'correct-ans':''}"><strong>${'กขคง'[i]}.</strong> ${esc(ch)} ${i===s.correctIdx?'<span style="color:var(--right);font-weight:700">✓ เฉลย</span>':''}</div>`).join('')}
+          <div class="explain"><strong>📘 คำอธิบาย:</strong> ${esc(s.explain)}</div>
+        </div>
+      </details>`;
+    }).join('')}
+  </div>`;
+}
+
+function rPersons(c,all){
+  const p={};
+  all.forEach(r=>{
+    const k=r.housekeeper+'|'+r.branch;
+    if(!p[k])p[k]={name:r.housekeeper,branch:r.branch,results:[]};
+    p[k].results.push(r);
+  });
+  const list=Object.values(p).map(x=>{
+    const sum=x.results.reduce((a,r)=>a+r.pct,0);
+    const avg=sum/x.results.length;
+    const best=Math.max(...x.results.map(r=>r.pct));
+    const sorted=x.results.slice().sort((a,b)=>b.finishedAt-a.finishedAt);
+    return {...x,avg,best,last:sorted[0],count:x.results.length,sortedResults:sorted};
+  }).sort((a,b)=>b.avg-a.avg);
+  c.innerHTML=`
+  <div class="flash flash-info">👥 รายชื่อแม่บ้านและสถิติการสอบ — กดดูประวัติเพื่อเห็นทุกครั้งที่สอบ</div>
+  <div class="history-list">
+    ${list.map((x,i)=>{
+      const g=calcGrade(x.avg);
+      return `<div class="history-item">
+        <div>
+          <div class="name">${esc(x.name)} <span class="small" style="font-weight:400">/ ${x.branch}</span></div>
+          <div class="date">สอบ ${x.count} ครั้ง · เฉลี่ย ${x.avg.toFixed(1)}% · สูงสุด ${x.best.toFixed(1)}% · ล่าสุด ${fmtDateShort(x.last.finishedAt)}</div>
+        </div>
+        <div class="score">${x.avg.toFixed(0)}%</div>
+        <div class="grade grade-${g.l}" style="background:${gradeBg(g.l)};color:${gradeFg(g.l)}">${g.l}</div>
+        <button onclick="showPerson('${esc(x.name)}','${esc(x.branch)}')">ดูประวัติ</button>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+async function showPerson(name,branch){
+  const all=await loadAll();
+  const list=all.filter(r=>r.housekeeper===name&&r.branch===branch).sort((a,b)=>a.finishedAt-b.finishedAt);
+  if(list.length===0)return;
+  const avg=(list.reduce((s,r)=>s+r.pct,0)/list.length).toFixed(1);
+  const best=Math.max(...list.map(r=>r.pct));
+  const passed=list.filter(r=>r.pct>=CONFIG.PASS).length;
+  
+  // trend chart bars
+  const max=Math.max(...list.map(r=>r.pct),100);
+  
+  // cat avg ของคนนี้
+  const catAgg={};
+  list.forEach(r=>Object.entries(r.catStats).forEach(([k,s])=>{
+    if(!catAgg[k])catAgg[k]={pts:0,maxPts:0};
+    catAgg[k].pts+=s.pts;catAgg[k].maxPts+=s.maxPts;
+  }));
+  
+  // first/last comparison
+  const first=list[0],last=list[list.length-1];
+  const improvement=list.length>=2?(last.pct-first.pct).toFixed(1):null;
+  
+  const m=document.createElement('div');
+  m.id='modal-host';
+  m.innerHTML=`
+  <div class="detail-modal" onclick="if(event.target===this)closeDetail()">
+    <div class="box">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px">
+        <div>
+          <h2 style="font-size:24px">${esc(name)}</h2>
+          <p class="small">${esc(branch)} · สอบทั้งหมด ${list.length} ครั้ง</p>
+        </div>
+        <button class="btn btn-secondary" onclick="closeDetail()">ปิด ✕</button>
+      </div>
+      
+      <div class="metric-grid">
+        <div class="metric"><div class="lbl">เฉลี่ย</div><div class="val">${avg}%</div></div>
+        <div class="metric"><div class="lbl">สูงสุด</div><div class="val" style="color:var(--right)">${best.toFixed(1)}%</div></div>
+        <div class="metric"><div class="lbl">ผ่านเกณฑ์</div><div class="val">${passed}<span style="font-size:18px;color:var(--neutral)">/${list.length}</span></div></div>
+        ${improvement!==null?`<div class="metric"><div class="lbl">พัฒนาการ</div><div class="val" style="color:${improvement>=0?'var(--right)':'var(--wrong)'}">${improvement>=0?'+':''}${improvement}<span style="font-size:18px">%</span></div><div class="sub">ครั้งแรก vs ล่าสุด</div></div>`:''}
+      </div>
+
+      ${list.length>=2?`
+      <div class="trend-card">
+        <h3>📈 พัฒนาการคะแนน (${list.length} ครั้ง)</h3>
+        <div class="trend-chart">
+          ${list.map((r,i)=>{
+            const h=(r.pct/max)*100;
+            const pass=r.pct>=CONFIG.PASS;
+            return `<div class="trend-bar ${pass?'pass':''}" style="height:${h}%" title="${fmtDate(r.finishedAt)}: ${r.pct}%"><div class="lbl">${r.pct}</div></div>`;
+          }).join('')}
+        </div>
+        <div class="trend-axis">
+          <span>${fmtDateShort(list[0].finishedAt)}</span>
+          <span class="small">เกณฑ์ผ่าน 70%</span>
+          <span>${fmtDateShort(list[list.length-1].finishedAt)}</span>
+        </div>
+      </div>`:''}
+      
+      <h3 style="margin:24px 0 12px;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:var(--neutral);border-bottom:2px solid var(--ink);padding-bottom:6px">คะแนนเฉลี่ยรายหมวด</h3>
+      <div class="metric-grid">
+        ${Object.entries(catAgg).map(([cat,s])=>{const p=Math.round((s.pts/s.maxPts)*100);const col=p>=75?'var(--sage)':p>=60?'var(--gold)':'var(--warm)';return `<div class="metric"><div class="lbl">${esc(cat)}</div><div class="val" style="color:${col}">${p}%</div></div>`}).join('')}
+      </div>
+      
+      <h3 style="margin:24px 0 12px;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:var(--neutral);border-bottom:2px solid var(--ink);padding-bottom:6px">รายการสอบ (ล่าสุดก่อน)</h3>
+      <div class="history-list">
+        ${list.slice().reverse().map(r=>{
+          const g=calcGrade(r.pct),pass=r.pct>=CONFIG.PASS;
+          return `<div class="history-item">
+            <div>
+              <div class="date" style="font-size:14px;color:var(--ink);font-weight:600">${fmtDate(r.finishedAt)}</div>
+              <div class="date">ใช้เวลา ${fmtDur(r.duration)} · ตอบถูก ${r.correctCount}/${r.totalCount}</div>
+            </div>
+            <div class="score" style="color:${pass?'var(--right)':'var(--wrong)'}">${r.totalScore}</div>
+            <div class="grade grade-${g.l}" style="background:${gradeBg(g.l)};color:${gradeFg(g.l)}">${g.l}</div>
+            <button onclick="closeDetail();setTimeout(()=>showDetail('${r.id}'),100)">ดู</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(m);
+}
+
+// === NAV ===
+function goHome(){state.page='home';render()}
+function goStart(){state.page='exam-start';render()}
+function goLogin(){state.page='owner-login';render()}
+
+// === BG ===
+function makeBubbles(){
+  const c=$('bubbles');
+  for(let i=0;i<8;i++){
+    const b=document.createElement('div');
+    b.className='bubble';
+    const s=20+Math.random()*40;
+    b.style.width=s+'px';b.style.height=s+'px';
+    b.style.left=(Math.random()*100)+'%';
+    b.style.animationDelay=(Math.random()*8)+'s';
+    b.style.animationDuration=(6+Math.random()*6)+'s';
+    c.appendChild(b);
+  }
+}
+
+makeBubbles();
+render();
+</script>
+</body>
+</html>
